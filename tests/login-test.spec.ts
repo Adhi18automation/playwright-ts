@@ -8,6 +8,11 @@ import { EducationalPage } from '../pages/educational';
 import { TwelfthInformationPage } from '../pages/12thinformation';
 import { DiplomaInformationPage } from '../pages/diplomainformation';
 import { WorkExperiencePage } from '../pages/workexperience';
+import { ProjectPage } from '../pages/project';
+import { CertificatePage } from '../pages/certificate';
+import { waitForUIToBeStable } from '../utils/uiHelper';
+import { closeUi } from '../utils/closeUi';
+
 
 import * as fs from 'fs';
 
@@ -37,47 +42,27 @@ test('END TO END Student Onboarding', async ({ page }) => {
 
     const resumePage = new InsideMyResumePage(page);
 
-
-        // ================= WORK EXPERIENCE =================
-    await resumePage.clickWorkExperienceIcon();
-
-    const workExperiencePage = new WorkExperiencePage(page);
-    await workExperiencePage.clickAddWorkExperienceButton();
-    await workExperiencePage.fillRoleDropdown(workExperienceUser.ROLE);
-    await workExperiencePage.fillCompanyNameDropdown(workExperienceUser.COMPANY);
-    await workExperiencePage.fillFunctionDropdown(workExperienceUser.FUNCTION);
-    await workExperiencePage.fillIndustryDropdown(workExperienceUser.INDUSTRY);
-    await workExperiencePage.fillIndustryTextfield(workExperienceUser.INDUSTRY);
-    await workExperiencePage.selectWorkExperienceStartDate(workExperienceUser.START_DATE);
-    await workExperiencePage.selectWorkExperienceEndDate(workExperienceUser.END_DATE);
-    // Employment type selection with if-else statements
-    if (workExperienceUser.EMPLOYMENT_TYPE === 'Full-time') {
-      await workExperiencePage.selectFullTimeEmployment();
-    } else if (workExperienceUser.EMPLOYMENT_TYPE === 'Part-time') {
-      await workExperiencePage.selectPartTimeEmployment();
-    }
-      await workExperiencePage.fillTitleTextfield(workExperienceUser.TITLE);
-      await workExperiencePage.fillSkillsDropdown(workExperienceUser.SKILLS);
-      await workExperiencePage.clickSubmitButton();
- 
-  
-    // ================= INTERNSHIP =================
-    await resumePage.clickInternshipIcon();
-
-    const internshipPage = new InternshipPage(page);
-    await internshipPage.clickAddInternshipButton();
     
-    await internshipPage.fillRoleDropdown(internshipUser.ROLE);
-    await internshipPage.fillCompanyNameDropdown(internshipUser.COMPANY);
-    await internshipPage.fillFunctionDropdown(internshipUser.FUNCTION);
-    await internshipPage.fillIndustryDropdown(internshipUser.INDUSTRY);
-    await internshipPage.selectInternshipStartDate(internshipUser.START_DATE);
-    await internshipPage.selectInternshipEndDate(internshipUser.END_DATE);
-    await internshipPage.fillSingleSkill(internshipUser.SKILLS);
-    await internshipPage.clickUpdateButton();   
+       // ================= PERSONAL INFO =================
+    await resumePage.clickAdditionalInformationIcon();
+    await waitForUIToBeStable(page);
+    const personal = new PersonalInformationPage(page);
+    await personal.clickAnywhereCheckbox();
+    await personal.clickSameAsPermanentAddressCheckbox();
 
- // ================= EDUCATION =================
+    await personal.fillCountry(addressUser.COUNTRY);
+    await personal.fillState(addressUser.STATE);
+    await personal.fillCity(addressUser.CITY);
+    await personal.fillPinCode(String(addressUser.POSTALCODE));
+
+    await personal.clickUpdateButton();
+    await closeUi(page);
+
+
+
+       // ================= EDUCATION =================
     await resumePage.clickEducationsIcon();
+    await waitForUIToBeStable(page);
 
     const educationPage = new EducationalPage(page);
     await educationPage.fillBoardDropdown("HSC (Higher Secondary Certificate)");
@@ -119,33 +104,78 @@ test('END TO END Student Onboarding', async ({ page }) => {
     }
 
     await educationPage.clickUpdateButton();
+    await closeUi(page);
+
+     // ================= INTERNSHIP =================
+    await resumePage.clickInternshipIcon();
+    await waitForUIToBeStable(page);
+
+    const internshipPage = new InternshipPage(page);
+    await internshipPage.clickAddInternshipButton();
+    
+    await internshipPage.fillRoleDropdown(internshipUser.ROLE);
+    await internshipPage.fillCompanyNameDropdown(internshipUser.COMPANY);
+    await internshipPage.fillFunctionDropdown(internshipUser.FUNCTION);
+    await internshipPage.fillIndustryDropdown(internshipUser.INDUSTRY);
+    await internshipPage.selectInternshipStartDate(internshipUser.START_DATE);
+    await internshipPage.selectInternshipEndDate(internshipUser.END_DATE);
+    await internshipPage.fillSingleSkill(internshipUser.SKILLS);
+    await internshipPage.clickUpdateButton(); 
+    await closeUi(page);
+
+    
+
+              // ================= PROJECTS =================
+    await resumePage.clickProjectsIcon();
+    await waitForUIToBeStable(page);
+
+    const projectPage = new ProjectPage(page);
+    await projectPage.clickAddProjectButton();
+    await projectPage.fillProjectTitle("E-commerce Website Development");
+    await projectPage.fillCompanyNameDropdown("ANJANA INFOTECH PRIVATE LIMITED");
+    await projectPage.selectProjectStartDate("2023-01");
+    await projectPage.selectProjectEndDate("2023-06");
+    await projectPage.fillSkillsDropdown("React, Node.js, MongoDB");
+    await projectPage.clickSubmitButton();
+    await closeUi(page);
 
 
-     // 🔥 MUST WAIT
-    await page.locator('[role="dialog"]').waitFor({ state: 'hidden' });
-    await page.locator('.ant-select-dropdown').waitFor({ state: 'detached' });
-    await page.locator('.ant-picker-dropdown').waitFor({ state: 'detached' });
-    await page.waitForTimeout(500);
+  // ================= WORK EXPERIENCE =================
+    await resumePage.clickWorkExperienceIcon();
+    await waitForUIToBeStable(page);
+    const workExperiencePage = new WorkExperiencePage(page);
+    await workExperiencePage.clickAddWorkExperienceButton();
+    await workExperiencePage.fillRoleDropdown(workExperienceUser.ROLE);
+    await workExperiencePage.fillCompanyNameDropdown(workExperienceUser.COMPANY);
+    await workExperiencePage.fillFunctionDropdown(workExperienceUser.FUNCTION);
+    await workExperiencePage.fillIndustryDropdown(workExperienceUser.INDUSTRY);
+    await workExperiencePage.fillIndustryTextfield(workExperienceUser.INDUSTRY);
+    await workExperiencePage.selectWorkExperienceStartDate(workExperienceUser.START_DATE);
+    await workExperiencePage.selectWorkExperienceEndDate(workExperienceUser.END_DATE);
+    // Employment type selection with if-else statements
+    if (workExperienceUser.EMPLOYMENT_TYPE === 'Full-time') {
+      await workExperiencePage.selectFullTimeEmployment();
+    } else if (workExperienceUser.EMPLOYMENT_TYPE === 'Part-time') {
+      await workExperiencePage.selectPartTimeEmployment();
+    }
+      await workExperiencePage.fillTitleTextfield(workExperienceUser.TITLE);
+      await workExperiencePage.fillSkillsDropdown(workExperienceUser.SKILLS);
+      await workExperiencePage.clickSubmitButton();
+      await closeUi(page);
 
+  
+     // ================= CERTIFICATION =================
+    await resumePage.clickCertificationIcon();
+    await waitForUIToBeStable(page);
+    const certificatePage = new CertificatePage(page);
+    await certificatePage.clickAddCertificationButton();
+    await certificatePage.fillOrganizationField("Coursera");
+    await certificatePage.fillTitleField("Full Stack Web Development");
+    await certificatePage.selectStartDate("2023-01");
+    await certificatePage.selectEndDate("2023-03");
+    await certificatePage.fillSkillsDropdown("Web Development, JavaScript, React");
+    await certificatePage.clickSubmitButton();  
 
-      // ================= PERSONAL INFO =================
-    await resumePage.clickAdditionalInformationIcon();
-
-    const personal = new PersonalInformationPage(page);
-    await personal.clickAnywhereCheckbox();
-    await personal.clickSameAsPermanentAddressCheckbox();
-
-    await personal.fillCountry(addressUser.COUNTRY);
-    await personal.fillState(addressUser.STATE);
-    await personal.fillCity(addressUser.CITY);
-    await personal.fillPinCode(String(addressUser.POSTALCODE));
-
-    await personal.clickUpdateButton();
-
-      // 🔥 MUST WAIT AGAIN
-    await page.locator('[role="dialog"]').waitFor({ state: 'hidden' });
-    await page.locator('.ant-select-dropdown').waitFor({ state: 'detached' });
-    await page.waitForTimeout(500);
 
   }
 });
