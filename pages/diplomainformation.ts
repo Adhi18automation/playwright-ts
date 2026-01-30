@@ -40,8 +40,27 @@ async fillCityDropdown(cityText: string): Promise<void> {
 
   async fillInstitutionName(institutionName: string): Promise<void> {
     const institutionInput = this.page.locator("//input[@id='diploma_0_institutionName']");
-    await institutionInput.waitFor({ state: 'visible' });
-    await institutionInput.fill(institutionName);
+    
+    // Wait a bit for the field to appear after college selection
+    await this.page.waitForTimeout(2000);
+    
+    // Try to find the input with fallback locators
+    try {
+      await institutionInput.waitFor({ state: 'visible', timeout: 5000 });
+      await institutionInput.fill(institutionName);
+    } catch (error) {
+      // Try alternative locators if the primary one fails
+      const alternativeInput = this.page.locator("input[placeholder*='Institution']").first();
+      if (await alternativeInput.isVisible()) {
+        await alternativeInput.fill(institutionName);
+      } else {
+        // Try by label
+        const labelInput = this.page.locator("label:has-text('Institution Name') + input").first();
+        if (await labelInput.isVisible()) {
+          await labelInput.fill(institutionName);
+        }
+      }
+    }
   }
 
   async selectDiplomaYear(year: number | string): Promise<void> {

@@ -4,7 +4,7 @@ const fs = require('fs');
 // Read all JSON files
 const loginData = JSON.parse(fs.readFileSync('./testdata/loginData.json', 'utf8'));
 const addressData = JSON.parse(fs.readFileSync('./testdata/address-data.json', 'utf8'));
-const marksData = JSON.parse(fs.readFileSync('./testdata/marks-data.json', 'utf8'));
+const marksData = JSON.parse(fs.readFileSync('./testdata/marksUser.json', 'utf8'));
 const internshipData = JSON.parse(fs.readFileSync('./testdata/internship-data.json', 'utf8'));
 const workExperienceData = JSON.parse(fs.readFileSync('./testdata/workexperience-data.json', 'utf8'));
 

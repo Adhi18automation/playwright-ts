@@ -14,6 +14,18 @@ export class HomePage extends BasePage {
     return this.page.locator("//div[text()='My Resume']");
   }
 
+  private get resumeButtonAlt() {
+    return this.page.locator("//button[contains(text(),'My Resume')]");
+  }
+
+  private get resumeButtonAlt2() {
+    return this.page.locator("//a[contains(text(),'My Resume')]");
+  }
+
+  private get resumeButtonAlt3() {
+    return this.page.locator("[data-testid='my-resume-button']");
+  }
+
   async waitForCompleteNowButton(): Promise<void> {
     try {
       await this.completeNowButton.waitFor({ 
@@ -38,19 +50,39 @@ export class HomePage extends BasePage {
 
   async clickResumeButton(): Promise<void> {
     try {
-      await this.resumeButton.waitFor({ 
-        state: 'visible', 
-        timeout: 10000 
-      });
+      console.log('Looking for My Resume button...');
       
-      const isVisible = await this.resumeButton.isVisible();
+      const resumeButton = this.page.locator("//div[text()='My Resume']");
+      const count = await resumeButton.count();
+      console.log(`My Resume button found: ${count} elements`);
+      
+      if (count === 0) {
+        throw new Error('My Resume button not found with locator //div[text()="My Resume"]');
+      }
+      
+      // Wait for the button to be visible
+      await resumeButton.first().waitFor({ state: 'visible', timeout: 15000 });
+      const isVisible = await resumeButton.first().isVisible();
+      console.log(`My Resume button visibility: ${isVisible}`);
+      
       if (!isVisible) {
         throw new Error('My Resume button is not visible');
       }
       
-      await this.resumeButton.click();
+      console.log('Clicking My Resume button...');
+      await resumeButton.first().click();
+      
+      // Wait for navigation after clicking
+      console.log('Waiting for page to stabilize after clicking My Resume button...');
+      await this.page.waitForTimeout(3000);
+      
+      console.log('My Resume button clicked successfully');
     } catch (error) {
-      throw new Error('My Resume button was not found or not visible within 10 seconds');
+      console.error('Error clicking My Resume button:', error);
+      throw new Error('My Resume button was not found or not clickable');
     }
   }
+
+  
+ 
 }
