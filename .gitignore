@@ -23,3 +23,8 @@ playwright/.auth/
 
 # VS Code
 .vscode/
+
+# Secrets
+credentials.json
+*.secret.json
+.env

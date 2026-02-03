@@ -26,6 +26,10 @@ export class InternshipPage extends BasePage {
     return this.page.locator("//span[text()='Industry *']/..//input[@type='search']");
   }
 
+  private get industryTextfield() {
+    return this.page.locator("//input[@id='internship_1_industry']");
+  }
+
   private get skillsDropdown() {
     return this.page.locator("//span[text()='Skills *']/..//input[contains(@class,'ant-select-selection-search-input')]");
   }
@@ -43,317 +47,216 @@ async clickAddInternshipButton(): Promise<void> {
   await this.addInternshipButton.click();
 }
 
+ // ============== ROLE DROPDOWN ==========
 
+async fillRoleDropdown(roleText: string): Promise<void> {
+  const page = this.page;
 
-async fillFunctionDropdown(functionText: string): Promise<void> {
-  console.log(`Starting fillFunctionDropdown with: "${functionText}"`);
-  
-  const dialog = this.page.locator('[role="dialog"]');
-
-  const selector = dialog.locator(
-    "(//span[normalize-space()='Function *'])[1]/..//div[contains(@class,'ant-select-selector')]"
+  const roleSelector = page.locator(
+    "//span[normalize-space()='Role *']/../..//div[contains(@class,'ant-select-selector')]"
   );
-  const input = dialog.locator(
-    "(//span[normalize-space()='Function *'])[1]/..//input[@type='search']"
+
+  const roleInput = page.locator(
+    "//span[normalize-space()='Role *']/../..//input[@role='combobox']"
   );
 
   // 1️⃣ Open dropdown
-  console.log('Opening dropdown...');
-  await selector.waitFor({ state: 'visible', timeout: 5000 });
+  await roleSelector.waitFor({ state: 'visible', timeout: 10000 });
+  await roleSelector.click();
+
+  // 2️⃣ Fill instantly (🔥 FAST)
+  await roleInput.fill(roleText);
+
+  // 3️⃣ Select matching option
+  const option = page.locator(
+    ".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content",
+    { hasText: roleText }
+  );
+
+  await option.first().waitFor({ state: 'visible', timeout: 5000 });
+  await option.first().click();
+
+  // 4️⃣ Optional safety: ensure selection committed
+  await page.locator(
+    "//span[normalize-space()='Role *']/../..//span[contains(@class,'ant-select-selection-item')]"
+  ).waitFor({ state: 'visible', timeout: 5000 });
+}
+
+
+
+
+ // ============== COMPANY DROPDOWN ==========
+
+async fillCompanyDropdownByIndex(
+  companyName: string,
+  index: number
+): Promise<void> {
+
+  const dialog = this.page.locator('[role="dialog"]');
+
+  const companySelector = dialog
+    .locator("//span[normalize-space()='Company Name *']/../..//div[contains(@class,'ant-select-selector')]")
+    .nth(index);
+
+  const companyInput = dialog
+    .locator("//span[normalize-space()='Company Name *']/../..//input[@role='combobox']")
+    .nth(index);
+
+  // 1️⃣ Open dropdown
+  await companySelector.waitFor({ state: 'visible', timeout: 10000 });
+  await companySelector.click();
+
+  // 2️⃣ Fill FAST (no typing delay)
+  await companyInput.fill(companyName);
+
+  // 3️⃣ Select from VISIBLE AntD dropdown (🔥 FIX)
+  const option = this.page.locator(
+    '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content',
+    { hasText: companyName }
+  );
+
+  await option.first().waitFor({ state: 'visible', timeout: 5000 });
+  await option.first().click();
+
+  // 4️⃣ Ensure dropdown closed
+  await this.page
+    .locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)')
+    .waitFor({ state: 'hidden' });
+}
+
+
+
+ // ============== FUNCTION DROPDOWN ==========
+
+async fillFunctionDropdown(functionName: string): Promise<void> {
+  const dialog = this.page.locator('[role="dialog"]');
+
+  const selector = dialog.locator(
+    "//span[normalize-space()='Function *']/../..//div[contains(@class,'ant-select-selector')]"
+  );
+
+  const input = dialog.locator(
+    "//span[normalize-space()='Function *']/../..//input[@role='combobox']"
+  );
+
+  // 1️⃣ Open dropdown
+  await selector.waitFor({ state: 'visible', timeout: 10000 });
   await selector.click();
-  console.log('Dropdown clicked');
 
-  // 2️⃣ Type the full function text
-  console.log('Typing function text...');
-  await input.waitFor({ state: 'visible', timeout: 5000 });
-  await input.clear();
-  await input.type(functionText, { delay: 50 });
-  console.log('Function text typed');
+  // 2️⃣ Type value (AntD filters internally)
+  await input.fill(functionName);
 
-  // 3️⃣ Wait for dropdown and options (reduced timeout)
-  console.log('Waiting for options...');
-  await this.page.waitForTimeout(1000);
+  // 3️⃣ Wait for dropdown to be visible and ready
+  await this.page.waitForTimeout(1000); // Let AntD filter the options
   
-  // Debug: Check if dropdown is visible
-  const dropdown = this.page.locator('.ant-select-dropdown:visible');
-  const isDropdownVisible = await dropdown.isVisible();
-  console.log(`Dropdown visible: ${isDropdownVisible}`);
+  const dropdown = this.page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)');
+  await dropdown.waitFor({ state: 'visible', timeout: 5000 });
+
+  // 4️⃣ Find and click matching option with better handling
+  const options = dropdown.locator('.ant-select-item-option[role="option"]');
+  const count = await options.count();
   
-  if (isDropdownVisible) {
-    // Debug: Count available options
-    const options = dropdown.locator('.ant-select-item-option-content');
-    const optionCount = await options.count();
-    console.log(`Found ${optionCount} options`);
+  console.log(`Looking for function: "${functionName}" among ${count} options`);
+
+  const expected = functionName.trim().toLowerCase();
+  let found = false;
+
+  for (let i = 0; i < count; i++) {
+    const option = options.nth(i);
     
-    // Debug: Print first few options
-    for (let i = 0; i < Math.min(optionCount, 3); i++) {
-      const optionText = await options.nth(i).textContent();
-      console.log(`Option ${i + 1}: "${optionText}"`);
+    // Wait for option to be visible and not hidden
+    try {
+      await option.waitFor({ state: 'visible', timeout: 2000 });
+      
+      const text = (await option.innerText()).trim().toLowerCase();
+      console.log(`Option ${i}: "${text}"`);
+
+      // Exact match
+      if (text === expected) {
+        // Scroll into view if needed
+        await option.scrollIntoViewIfNeeded();
+        await this.page.waitForTimeout(200);
+        await option.click();
+        found = true;
+        console.log(`Found exact match: "${text}"`);
+        break;
+      }
+      
+      // Partial match
+      if (text.includes(expected) || expected.includes(text)) {
+        await option.scrollIntoViewIfNeeded();
+        await this.page.waitForTimeout(200);
+        await option.click();
+        found = true;
+        console.log(`Found partial match: "${text}"`);
+        break;
+      }
+    } catch (error) {
+      // Skip this option if it's not accessible
+      console.log(`Skipping option ${i}: ${error}`);
+      continue;
     }
-    
-    if (optionCount > 0) {
-      // Simple approach: Select first option
-      console.log('Selecting first option');
-      await options.first().click();
-    } else {
-      // No options found, try keyboard
-      console.log('No options found, using keyboard selection');
-      await this.page.keyboard.press('ArrowDown');
-      await this.page.waitForTimeout(300);
-      await this.page.keyboard.press('Enter');
-    }
-  } else {
-    // Dropdown not visible, try keyboard anyway
-    console.log('Dropdown not visible, trying keyboard selection');
+  }
+
+  // Fallback: Use keyboard if no option was clickable
+  if (!found) {
+    console.log('No clickable option found, trying keyboard approach');
+    await input.click(); // Focus the input
     await this.page.keyboard.press('ArrowDown');
     await this.page.waitForTimeout(300);
     await this.page.keyboard.press('Enter');
+    found = true;
   }
 
-  // 4️⃣ Ensure dropdown closed
-  try {
-    await this.page
-      .locator('.ant-select-dropdown')
-      .first()
-      .waitFor({ state: 'hidden', timeout: 3000 });
-  } catch (error) {
-    // Ignore if already hidden
+  if (!found) {
+    throw new Error(`❌ Function not found in dropdown: "${functionName}"`);
   }
+
+  // 5️⃣ Validate commit
+  await selector.locator('.ant-select-selection-item')
+    .waitFor({ state: 'visible', timeout: 5000 });
   
-  console.log('Function dropdown completed');
+  console.log(`✅ Function successfully selected: "${functionName}"`);
 }
+
+
+
+ // ============== INDUSTRY DROPDOWN ========== 
+
 
 async fillIndustryDropdown(industryText: string): Promise<void> {
-  console.log(`Starting fillIndustryDropdown with: "${industryText}"`);
-  
   const dialog = this.page.locator('[role="dialog"]');
 
   const selector = dialog.locator(
-    "(//span[normalize-space()='Industry *'])[1]/..//div[contains(@class,'ant-select-selector')]"
+    "//span[normalize-space()='Industry *']/../..//div[contains(@class,'ant-select-selector')]"
   );
+
   const input = dialog.locator(
-    "(//span[normalize-space()='Industry *'])[1]/..//input[@type='search']"
+    "//span[normalize-space()='Industry *']/../..//input[@role='combobox']"
   );
 
-  // 1️⃣ Open dropdown
-  console.log('Opening Industry dropdown...');
-  await selector.waitFor({ state: 'visible', timeout: 5000 });
+  // 1️⃣ Open
   await selector.click();
-  console.log('Industry dropdown clicked');
 
-  // 2️⃣ Type the full industry text
-  console.log('Typing industry text...');
-  await input.waitFor({ state: 'visible', timeout: 5000 });
-  await input.clear();
-  await input.type(industryText, { delay: 50 });
-  console.log('Industry text typed');
+  // 2️⃣ Type
+  await input.fill(industryText);
 
-  // 3️⃣ Wait for dropdown and options
-  console.log('Waiting for Industry options...');
-  await this.page.waitForTimeout(1000);
-  
-  // Debug: Check if dropdown is visible
-  const dropdown = this.page.locator('.ant-select-dropdown:visible');
-  const isDropdownVisible = await dropdown.isVisible();
-  console.log(`Industry dropdown visible: ${isDropdownVisible}`);
-  
-  if (isDropdownVisible) {
-    // Debug: Count available options
-    const options = dropdown.locator('.ant-select-item-option-content');
-    const optionCount = await options.count();
-    console.log(`Found ${optionCount} Industry options`);
-    
-    // Debug: Print first few options
-    for (let i = 0; i < Math.min(optionCount, 3); i++) {
-      const optionText = await options.nth(i).textContent();
-      console.log(`Industry Option ${i + 1}: "${optionText}"`);
-    }
-    
-    if (optionCount > 0) {
-      // Try to find exact match first
-      try {
-        const exactOption = dropdown.locator(
-          `.ant-select-item-option-content:has-text("${industryText}")`
-        );
-        if (await exactOption.isVisible()) {
-          console.log('Selecting exact Industry match');
-          await exactOption.click();
-        } else {
-          console.log('No exact Industry match, selecting first option');
-          await options.first().click();
-        }
-      } catch (error) {
-        console.log('Exact Industry match failed, selecting first option');
-        await options.first().click();
-      }
-    } else {
-      // No options found, try keyboard
-      console.log('No Industry options found, using keyboard selection');
-      await this.page.keyboard.press('ArrowDown');
-      await this.page.waitForTimeout(300);
-      await this.page.keyboard.press('Enter');
-    }
-  } else {
-    // Dropdown not visible, try keyboard anyway
-    console.log('Industry dropdown not visible, trying keyboard selection');
-    await this.page.keyboard.press('ArrowDown');
-    await this.page.waitForTimeout(300);
-    await this.page.keyboard.press('Enter');
-  }
-
-  // 4️⃣ Ensure dropdown closed
-  try {
-    await this.page
-      .locator('.ant-select-dropdown')
-      .first()
-      .waitFor({ state: 'hidden', timeout: 3000 });
-  } catch (error) {
-    // Ignore if already hidden
-  }
-  
-  console.log('Industry dropdown completed');
-}
-
-async fillSkillsDropdown(skills: string | string[]): Promise<void> {
-  // Convert single skill to array if needed
-  const skillsArray = Array.isArray(skills) ? skills : [skills];
-  
-  console.log(`Starting fillSkillsDropdown with ${skillsArray.length} skills:`, skillsArray);
-  
-  const dialog = this.page.locator('[role="dialog"]');
-  
-  // Get the skills dropdown container
-  const selector = dialog.locator(
-    "(//span[normalize-space()='Skills *'])[1]/..//div[contains(@class,'ant-select-selector')]"
+  // 3️⃣ Click matching option
+  const option = this.page.locator(
+    '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content',
+    { hasText: industryText }
   );
-  
-  // 1️⃣ Open dropdown
-  console.log('Opening Skills dropdown...');
-  await selector.waitFor({ state: 'visible', timeout: 5000 });
-  await selector.click();
-  console.log('Skills dropdown clicked');
 
-  // 2️⃣ Process each skill one by one
-  for (let i = 0; i < skillsArray.length; i++) {
-    const skill = skillsArray[i].trim();
-    console.log(`Processing skill ${i + 1}/${skillsArray.length}: "${skill}"`);
-    
-    // For multi-select, we need to click on the dropdown area again to focus input
-    if (i > 0) {
-      await selector.click();
-      await this.page.waitForTimeout(300);
-    }
-    
-    // Get the input field
-    const input = dialog.locator(
-      "(//span[normalize-space()='Skills *'])[1]/..//input[contains(@class,'ant-select-selection-search-input')]"
-    );
-    
-    await input.waitFor({ state: 'visible', timeout: 5000 });
-    
-    // For multi-select, don't clear if we already have selected items
-    if (i === 0) {
-      await input.clear();
-    }
-    
-    await input.type(skill, { delay: 50 });
-    
-    // Wait for dropdown options
-    await this.page.waitForTimeout(1000);
-    
-    const dropdown = this.page.locator('.ant-select-dropdown:visible');
-    const isDropdownVisible = await dropdown.isVisible();
-    
-    if (isDropdownVisible) {
-      // Count available options
-      const options = dropdown.locator('.ant-select-item-option-content');
-      const optionCount = await options.count();
-      console.log(`Found ${optionCount} options for skill: "${skill}"`);
-      
-      // Try to find exact match
-      let skillSelected = false;
-      
-      try {
-        const exactOption = dropdown.locator(
-          `.ant-select-item-option-content:has-text("${skill}")`
-        );
-        if (await exactOption.isVisible()) {
-          console.log(`Selecting exact match for skill: "${skill}"`);
-          await exactOption.click();
-          skillSelected = true;
-        }
-      } catch (error) {
-        console.log(`Exact match failed for skill: "${skill}"`);
-      }
-      
-      // If exact match failed, try case insensitive
-      if (!skillSelected) {
-        try {
-          const allOptions = await options.all();
-          for (const option of allOptions) {
-            const optionText = await option.textContent();
-            if (optionText && optionText.toLowerCase().includes(skill.toLowerCase())) {
-              console.log(`Selecting case insensitive match: "${optionText}"`);
-              await option.click();
-              skillSelected = true;
-              break;
-            }
-          }
-        } catch (error) {
-          console.log(`Case insensitive match failed for skill: "${skill}"`);
-        }
-      }
-      
-      // If still not selected, use keyboard
-      if (!skillSelected) {
-        console.log(`Using keyboard selection for skill: "${skill}"`);
-        await this.page.keyboard.press('ArrowDown');
-        await this.page.waitForTimeout(300);
-        await this.page.keyboard.press('Enter');
-      }
-      
-      // Wait a bit between skills for multi-select
-      await this.page.waitForTimeout(800);
-      
-    } else {
-      console.log(`Dropdown not visible for skill: "${skill}", trying keyboard`);
-      await this.page.keyboard.press('ArrowDown');
-      await this.page.waitForTimeout(300);
-      await this.page.keyboard.press('Enter');
-    }
-  }
-  
-  // 3️⃣ Close dropdown by pressing Escape or clicking outside
-  await this.page.keyboard.press('Escape');
-  await this.page.waitForTimeout(300);
-  
-  console.log('Skills dropdown completed');
+  await option.first().waitFor({ state: 'visible', timeout: 5000 });
+  await option.first().click();
+
+  // 4️⃣ Assert
+  await selector.locator('.ant-select-selection-item')
+    .filter({ hasText: industryText })
+    .waitFor({ state: 'visible', timeout: 5000 });
 }
 
-
-
-
-
-
-
-  async fillRoleDropdown(role: string): Promise<void> {
-    await AntdDropdownUtil.fillGenericSearchDropdown(
-      this.page,
-      'Role',
-      role,
-      1,
-      true
-    );
-  }
-
-  async fillCompanyNameDropdown(company: string): Promise<void> {
-    await AntdDropdownUtil.fillCompanyDropdown(
-      this.page,
-      company,
-      1,
-      true
-    );
-  }
+ // ============== START DATE DROPDOWN ==========
 
  async selectInternshipStartDate(month: string): Promise<void> {
     await AntdMonthPickerUtil.selectMonth(
@@ -363,6 +266,8 @@ async fillSkillsDropdown(skills: string | string[]): Promise<void> {
     );
   }
 
+ // ============== END DATE DROPDOWN ==========
+
   async selectInternshipEndDate(month: string): Promise<void> {
     await AntdMonthPickerUtil.selectMonth(
       this.page,
@@ -370,6 +275,8 @@ async fillSkillsDropdown(skills: string | string[]): Promise<void> {
       month
     );
   }
+
+ // ============== SKILL DROPDOWN ==========
 
   async fillSingleSkill(skill: string): Promise<void> {
     console.log(`Starting fillSingleSkill with: "${skill}"`);
@@ -384,6 +291,29 @@ async fillSkillsDropdown(skills: string | string[]): Promise<void> {
     );
     
     console.log('Single skill selection completed');
+  }
+
+ // ============== INDUSTRY TEXTFIELD ==========
+
+  async fillIndustryTextfield(industry: string): Promise<void> {
+    console.log(`Starting fillIndustryTextfield with: "${industry}"`);
+    
+    try {
+      // Wait for textfield and fill industry data
+      await this.industryTextfield.waitFor({ state: 'visible', timeout: 10000 });
+      await this.industryTextfield.clear();
+      await this.industryTextfield.fill(industry);
+      console.log(`Successfully filled industry textfield with: "${industry}"`);
+    } catch (error) {
+      console.log(`Error filling industry textfield: ${error}`);
+      // Try alternative approach - click first then fill
+      await this.industryTextfield.click();
+      await this.industryTextfield.clear();
+      await this.industryTextfield.fill(industry);
+      console.log(`Filled industry textfield with alternative approach: "${industry}"`);
+    }
+    
+    console.log('Industry textfield completed');
   }
 
   async clickUpdateButton(): Promise<void> {

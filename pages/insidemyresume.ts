@@ -30,6 +30,8 @@ export class InsideMyResumePage extends BasePage {
     return this.page.locator("//h1[normalize-space()='Certification']/../..//*[name()='svg' and @class='iconStyle']");
   }
 
+
+
   async clickAdditionalInformationIcon(): Promise<void> {
     await this.additionalInformationIcon.click();
   }
@@ -53,4 +55,6 @@ export class InsideMyResumePage extends BasePage {
   async clickCertificationIcon(): Promise<void> {
     await this.certificationIcon.click();
   }
+
+
 }

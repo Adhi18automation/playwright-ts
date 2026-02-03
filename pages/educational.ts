@@ -3,14 +3,33 @@ import { AntdDropdownUtil } from '../utils/AntdDropdownUtil.ts';
 
 export class EducationalPage extends BasePage {
 async fillBoardDropdown(boardText: string): Promise<void> {
-  await AntdDropdownUtil.fillSearchableDropdownWithFallback(
-    this.page,
-    'Board',
-    boardText,
-    1,
-    false
+  const page = this.page;
+
+  const boardSelector = page.locator(
+    "//span[normalize-space()='Board *']/../..//div[contains(@class,'ant-select-selector')]"
   );
+
+  const boardInput = page.locator(
+    "//span[normalize-space()='Board *']/../..//input[@role='combobox']"
+  );
+
+  // 1️⃣ Open dropdown
+  await boardSelector.waitFor({ state: 'visible', timeout: 10000 });
+  await boardSelector.click();
+
+  // 2️⃣ Type value
+  await boardInput.type(boardText, { delay: 80 });
+
+  // 3️⃣ Pick visible option
+  const option = page.locator(
+    ".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content",
+    { hasText: boardText }
+  );
+
+  await option.first().waitFor({ state: 'visible', timeout: 5000 });
+  await option.first().click();
 }
+
 
 async selectYear(year: number): Promise<void> {
   const dialog = this.page.locator('[role="dialog"]');
@@ -56,19 +75,23 @@ async selectYear(year: number): Promise<void> {
   await picker.waitFor({ state: 'hidden' });
 }
 
-async fillMarks(marks: string): Promise<void> {
-  const dialog = this.page.locator('[role="dialog"]');
-  const marksInput = dialog.locator("//span[text()='Marks (percentage) *']/../..//input[@type='text']");
-  
-  await marksInput.waitFor({ state: 'visible' });
-  await marksInput.fill(marks);
+async fillMarks(marks: string | number) {
+  const marksInput = this.page.locator('#tenth_marks');
+
+  await marksInput.waitFor({ state: 'visible', timeout: 10000 });
+  await marksInput.click();
+
+  // ✅ Always convert Excel value to string
+  await marksInput.fill(marks.toString());
 }
 
+
+ 
+
 async clickUpdateButton(): Promise<void> {
-  const dialog = this.page.locator('[role="dialog"]');
-  const updateButton = dialog.locator("//div[text()='Update']");
+  const updateButton = this.page.locator("//button[@type='submit']");
   
-  await updateButton.waitFor({ state: 'visible' });
+  await updateButton.waitFor({ state: 'visible', timeout: 10000 });
   await updateButton.scrollIntoViewIfNeeded();
   await updateButton.click();
 }

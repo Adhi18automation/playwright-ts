@@ -17,7 +17,5 @@ export class LoginPage extends BasePage {
     await this.page.locator("//button[text()='Login']").click();
   }
 
-  async verifyHomePageVisible(): Promise<void> {
-    await this.page.waitForURL('**/dashboard', { timeout: 10000 });
-  }
+ 
 }
