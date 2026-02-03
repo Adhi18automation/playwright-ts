@@ -1,60 +1,64 @@
-import { Page } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './basepage';
 import { AntdMonthPickerUtil } from '../utils/AntdMonthPickerUtil';
 
 export class ProjectPage extends BasePage {
+  private readonly addProjectButton: Locator;
+  private readonly projectTitleField: Locator;
+  private readonly skillsDropdown: Locator;
+  private readonly submitButton: Locator;
+  private readonly companyNameDropdown: Locator;
+
   constructor(page: Page) {
     super(page);
-  }
-
-  private get addProjectButton() {
-    return this.page.locator("//div[text()='Add Project']");
-  }
-
-  private get projectTitleField() {
-    return this.page.locator("//input[@id='project_1_title']");
-  }
-
-  private get startDateInput() {
-    return "(//input[@placeholder='Please Select the year'])[1]";
-  }
-
-  private get endDateInput() {
-    return "(//input[@placeholder='Please Select the year'])[2]";
-  }
-
-  private get skillsDropdown() {
-    return this.page.locator("//span[text()='Skills *']/../..//input[@class='ant-select-selection-search-input']");
-  }
-
-  private get submitButton() {
-    return this.page.locator("//button[@type='submit']");
-  }
-
-  private get companyNameDropdown() {
-    return this.page.locator("//span[text()='Company Name']/..//input[@class='ant-select-selection-search-input']");
+    
+    this.addProjectButton = this.page
+      .getByTestId('add-project-button')
+      .or(this.page.getByRole('button', { name: 'Add Project', exact: true }))
+      .or(this.page.locator('button:has-text("Add Project")'));
+    
+    this.projectTitleField = this.page
+      .getByTestId('project-title-field')
+      .or(this.page.locator('#project_1_title'));
+    
+    this.skillsDropdown = this.page
+      .getByTestId('project-skills-dropdown')
+      .or(this.page.locator('span:has-text("Skills *")').locator('..').locator('..').locator('div[class*="ant-select-selector"]'));
+    
+    this.submitButton = this.page
+      .getByTestId('submit-button')
+      .or(this.page.getByRole('button', { name: /submit/i }))
+      .or(this.page.locator('button[type="submit"]'));
+    
+    this.companyNameDropdown = this.page
+      .getByTestId('project-company-dropdown')
+      .or(this.page.locator('span:has-text("Company Name")').locator('..').locator('..').locator('div[class*="ant-select-selector"]'));
   }
 
   async clickAddProjectButton(): Promise<void> {
-    await this.addProjectButton.click();
+    await this.safeClick(this.addProjectButton, 'Add Project button');
   }
 
   async fillProjectTitle(title: string): Promise<void> {
-    await this.projectTitleField.fill(title);
+    await this.safeFill(this.projectTitleField, title, 'Project title field');
   }
 
   async selectProjectStartDate(month: string): Promise<void> {
+    const startDateSelector = "[data-testid='project-start-date'], input[placeholder='Please Select the year']:nth-of-type(1)";
+    
     await AntdMonthPickerUtil.selectMonth(
       this.page,
-      this.startDateInput,
+      startDateSelector,
       month
     );
   }
 
   async selectProjectEndDate(month: string): Promise<void> {
+    const endDateSelector = "[data-testid='project-end-date'], input[placeholder='Please Select the year']:nth-of-type(2)";
+    
     await AntdMonthPickerUtil.selectMonth(
       this.page,
-      this.endDateInput,
+      endDateSelector,
       month
     );
   }
@@ -62,21 +66,17 @@ export class ProjectPage extends BasePage {
   async fillSkillsDropdown(skillsText: string): Promise<void> {
     console.log(`Starting fillSkillsDropdown with: "${skillsText}"`);
     
+    await this.safeClick(this.skillsDropdown, 'Project Skills dropdown');
+
     const dialog = this.page.locator('[role="dialog"]');
-    const selector = dialog.locator("//span[text()='Skills *']/../..//div[contains(@class,'ant-select-selector')]");
-    const input = dialog.locator("//span[text()='Skills *']/../..//input[@class='ant-select-selection-search-input']");
+    const input = dialog
+      .getByTestId('project-skills-input')
+      .or(dialog.locator('span:has-text("Skills *")').locator('..').locator('..').locator('input[class*="ant-select-selection-search-input"]'));
 
-    // Open dropdown
-    await selector.waitFor({ state: 'visible', timeout: 5000 });
-    await selector.click();
+    await this.safeFill(input, skillsText, 'Project Skills input', { validate: false });
 
-    // Type skills text
-    await input.waitFor({ state: 'visible', timeout: 5000 });
-    await input.clear();
-    await input.type(skillsText, { delay: 50 });
-
-    // Wait for options
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForSelector('.ant-select-dropdown:visible', { state: 'visible', timeout: 3000 }).catch(() => {});
+    
     const dropdown = this.page.locator('.ant-select-dropdown:visible');
     
     if (await dropdown.isVisible()) {
@@ -84,32 +84,26 @@ export class ProjectPage extends BasePage {
       const optionCount = await options.count();
       
       if (optionCount > 0) {
-        // Try exact match first
         try {
           const exactOption = dropdown.locator(`.ant-select-item-option-content:has-text("${skillsText}")`);
           if (await exactOption.isVisible()) {
-            await exactOption.click();
+            await this.safeClick(exactOption, `Skills option: ${skillsText}`);
           } else {
-            await options.first().click();
+            await this.safeClick(options.first(), 'Skills option (first)');
           }
         } catch {
-          await options.first().click();
+          await this.safeClick(options.first(), 'Skills option (first fallback)');
         }
       } else {
-        // Keyboard fallback
         await this.page.keyboard.press('ArrowDown');
         await this.page.keyboard.press('Enter');
       }
     } else {
-      // Keyboard fallback
       await this.page.keyboard.press('ArrowDown');
       await this.page.keyboard.press('Enter');
     }
 
-    // Ensure dropdown closed
-    try {
-      await this.page.locator('.ant-select-dropdown').first().waitFor({ state: 'hidden', timeout: 3000 });
-    } catch {}
+    await this.page.locator('.ant-select-dropdown').first().waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {});
     
     console.log('Skills dropdown completed');
   }
@@ -118,13 +112,12 @@ export class ProjectPage extends BasePage {
     console.log('Starting clickSubmitButton');
     
     try {
-      await this.submitButton.waitFor({ state: 'visible', timeout: 10000 });
-      await this.submitButton.click();
+      await this.safeClick(this.submitButton, 'Submit button');
       console.log('Submit button clicked successfully');
     } catch (error) {
       console.log(`Error clicking submit button: ${error}`);
-      // Fallback: try clicking by text content
-      await this.page.locator("button[type='submit']").click();
+      const fallbackButton = this.page.locator('button[type="submit"]');
+      await this.safeClick(fallbackButton, 'Submit button (fallback)');
       console.log('Submit button clicked with fallback approach');
     }
     
@@ -134,21 +127,17 @@ export class ProjectPage extends BasePage {
   async fillCompanyNameDropdown(companyName: string): Promise<void> {
     console.log(`Starting fillCompanyNameDropdown with: "${companyName}"`);
     
+    await this.safeClick(this.companyNameDropdown, 'Project Company Name dropdown');
+
     const dialog = this.page.locator('[role="dialog"]');
-    const selector = dialog.locator("//span[text()='Company Name']/../..//div[contains(@class,'ant-select-selector')]");
-    const input = dialog.locator("//span[text()='Company Name']/..//input[@class='ant-select-selection-search-input']");
+    const input = dialog
+      .getByTestId('project-company-input')
+      .or(dialog.locator('span:has-text("Company Name")').locator('..').locator('input[class*="ant-select-selection-search-input"]'));
 
-    // Open dropdown
-    await selector.waitFor({ state: 'visible', timeout: 5000 });
-    await selector.click();
+    await this.safeFill(input, companyName, 'Project Company Name input', { validate: false });
 
-    // Type company name
-    await input.waitFor({ state: 'visible', timeout: 5000 });
-    await input.clear();
-    await input.type(companyName, { delay: 50 });
-
-    // Wait for options
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForSelector('.ant-select-dropdown:visible', { state: 'visible', timeout: 3000 }).catch(() => {});
+    
     const dropdown = this.page.locator('.ant-select-dropdown:visible');
     
     if (await dropdown.isVisible()) {
@@ -156,32 +145,26 @@ export class ProjectPage extends BasePage {
       const optionCount = await options.count();
       
       if (optionCount > 0) {
-        // Try exact match first
         try {
           const exactOption = dropdown.locator(`.ant-select-item-option-content:has-text("${companyName}")`);
           if (await exactOption.isVisible()) {
-            await exactOption.click();
+            await this.safeClick(exactOption, `Company Name option: ${companyName}`);
           } else {
-            await options.first().click();
+            await this.safeClick(options.first(), 'Company Name option (first)');
           }
         } catch {
-          await options.first().click();
+          await this.safeClick(options.first(), 'Company Name option (first fallback)');
         }
       } else {
-        // Keyboard fallback
         await this.page.keyboard.press('ArrowDown');
         await this.page.keyboard.press('Enter');
       }
     } else {
-      // Keyboard fallback
       await this.page.keyboard.press('ArrowDown');
       await this.page.keyboard.press('Enter');
     }
 
-    // Ensure dropdown closed
-    try {
-      await this.page.locator('.ant-select-dropdown').first().waitFor({ state: 'hidden', timeout: 3000 });
-    } catch {}
+    await this.page.locator('.ant-select-dropdown').first().waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {});
     
     console.log('Company Name dropdown completed');
   }

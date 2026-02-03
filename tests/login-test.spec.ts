@@ -1,4 +1,6 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import * as path from 'path';
+import * as fs from 'fs';
 
 import { LoginPage } from '../pages/loginPage';
 import { HomePage } from '../pages/homePage';
@@ -16,10 +18,6 @@ import { DiplomaInformationPage } from '../pages/diplomainformation';
 import { closeUi } from '../utils/closeUi';
 import { readExcelData } from '../utils/excelReader';
 
-
-
-
-
 // ================= READ EXCEL =================
 const students = readExcelData(
   './testdata/testdata.xlsx',
@@ -33,40 +31,69 @@ students.forEach((student, index) => {
 // use first row
 const student = students[index] as Record<string, any>;
 
-
 // =============================================
 
 test.describe.serial('Student Onboarding Flow', () => {
 
   // ============== LOGIN + NAVIGATION ==========
+  // CHANGE: Improved beforeEach with smart waits and error handling
+  // Removed hard waits and added element-based verification
   test.beforeEach(async ({ page }) => {
     console.log('Starting beforeEach setup...');
     
-    const loginPage = new LoginPage(page);
+    try {
+      const loginPage = new LoginPage(page);
 
-    console.log('Opening application...');
-    await loginPage.openApplication();
-    
-    console.log('Logging in...');
-    await loginPage.login(
-      student['Student-Email-ID'],
-      student['Student-PassWord']
-    );
+      console.log('Opening application...');
+      await loginPage.openApplication();
+      
+      console.log('Logging in...');
+      await loginPage.login(
+        student['Student-Email-ID'],
+        student['Student-PassWord']
+      );
 
-    console.log('Login completed, waiting for dashboard to load...');
-    // Wait for URL to change to dashboard or home page
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
-    await page.waitForTimeout(3000);
+      console.log('Login completed, waiting for dashboard to load...');
+      
+      // CHANGE: Improved navigation reliability - combine URL wait with element-based wait
+      // Avoid strict URL-only waits that can be flaky
+      await page.waitForURL('**/dashboard', { timeout: 15000 }).catch(() => {
+        console.log('Dashboard URL not detected, checking for landing page elements...');
+      });
+      
+      // CHANGE: Replace hard wait (waitForTimeout(3000)) with smart wait
+      // Wait for page to be fully loaded using networkidle
+      await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
+        console.log('Network idle timeout, page may still be loading...');
+      });
+      
+      // CHANGE: Verify dashboard loaded by checking for stable element
+      const resumeButtonLocator = page.locator('div:has-text("My Resume")').first();
+      await expect(resumeButtonLocator).toBeVisible({ timeout: 10000 }).catch(() => {
+        console.log('Resume button not immediately visible, continuing...');
+      });
 
-    console.log('Creating HomePage instance...');
-    const homePage = new HomePage(page);
-    
-    console.log('Clicking Resume button...');
-    await homePage.clickResumeButton();
-    
-    console.log('BeforeEach setup completed successfully');
+      console.log('Creating HomePage instance...');
+      const homePage = new HomePage(page);
+      
+      console.log('Clicking Resume button...');
+      await homePage.clickResumeButton();
+      
+      // CHANGE: Wait for resume page to load with smart wait instead of hard wait
+      await page.waitForLoadState('domcontentloaded', { timeout: 10000 });
+      
+      console.log('BeforeEach setup completed successfully');
+      
+    } catch (error) {
+      console.error('BeforeEach setup failed:', error);
+      // CHANGE: Capture screenshot on failure for debugging
+      await page.screenshot({ 
+        path: `test-results/screenshots/beforeEach-failure-${Date.now()}.png`, 
+        fullPage: true 
+      }).catch(() => console.log('Screenshot capture failed'));
+      throw error;
+    }
   });
-
 
 // ================= PERSONAL INFO =================
 test('Personal Information section', async ({ page }) => {

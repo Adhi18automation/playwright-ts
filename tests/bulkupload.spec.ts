@@ -98,10 +98,4 @@ test('Bulk Upload Login Test', async ({ page }) => {
   await page.screenshot({ path: 'test-results/bulk-upload-page.png', fullPage: true });
   console.log('Screenshot taken: bulk-upload-page.png');
   
-
- 
-
-  
-
-  
 });

@@ -1,154 +1,124 @@
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './basepage';
 import { AntdDropdownUtil } from '../utils/AntdDropdownUtil.ts';
 
 export class EducationalPage extends BasePage {
-async fillBoardDropdown(boardText: string): Promise<void> {
-  const page = this.page;
+  private readonly boardDropdown: Locator;
+  private readonly marksInput: Locator;
+  private readonly updateButton: Locator;
 
-  const boardSelector = page.locator(
-    "//span[normalize-space()='Board *']/../..//div[contains(@class,'ant-select-selector')]"
-  );
-
-  const boardInput = page.locator(
-    "//span[normalize-space()='Board *']/../..//input[@role='combobox']"
-  );
-
-  // 1️⃣ Open dropdown
-  await boardSelector.waitFor({ state: 'visible', timeout: 10000 });
-  await boardSelector.click();
-
-  // 2️⃣ Type value
-  await boardInput.type(boardText, { delay: 80 });
-
-  // 3️⃣ Pick visible option
-  const option = page.locator(
-    ".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content",
-    { hasText: boardText }
-  );
-
-  await option.first().waitFor({ state: 'visible', timeout: 5000 });
-  await option.first().click();
-}
-
-
-async selectYear(year: number): Promise<void> {
-  const dialog = this.page.locator('[role="dialog"]');
-
-  const yearInput = dialog
-    .locator("input[placeholder='Please Select the year']:not([disabled])")
-    .first();
-
-  // 1️⃣ Open picker
-  await yearInput.click();
-
-  const picker = this.page.locator('.ant-picker-dropdown:visible');
-  await picker.waitFor({ state: 'visible' });
-
-  const yearCell = picker.locator(
-    `.ant-picker-cell-inner:text-is("${year}")`
-  );
-
-  // 2️⃣ If year already visible (2020–2029 case) → click directly
-  if (await yearCell.isVisible()) {
-    await yearCell.click();
-  } 
-  // 3️⃣ Else → navigate via decade panel
-  else {
-    const decadeStart = Math.floor(year / 10) * 10;
-    const decadeLabel = `${decadeStart}-${decadeStart + 9}`;
-
-    // Move to decade view
-    await picker.locator('.ant-picker-header-view').click();
-
-    // Select correct decade
-    await picker
-      .locator(`.ant-picker-cell-inner:text-is("${decadeLabel}")`)
-      .click();
-
-    // Select year
-    await picker
-      .locator(`.ant-picker-cell-inner:text-is("${year}")`)
-      .click();
+  constructor(page: Page) {
+    super(page);
+    
+    this.boardDropdown = this.page
+      .getByTestId('board-dropdown')
+      .or(this.page.locator('span:has-text("Board *")').locator('..').locator('..').locator('div[class*="ant-select-selector"]'));
+    
+    this.marksInput = this.page.locator('#tenth_marks');
+    
+    this.updateButton = this.page
+      .getByTestId('update-button')
+      .or(this.page.getByRole('button', { name: /update/i }))
+      .or(this.page.locator('button[type="submit"]'));
   }
 
-  // 4️⃣ Ensure picker closed
-  await picker.waitFor({ state: 'hidden' });
-}
-
-async fillMarks(marks: string | number) {
-  const marksInput = this.page.locator('#tenth_marks');
-
-  await marksInput.waitFor({ state: 'visible', timeout: 10000 });
-  await marksInput.click();
-
-  // ✅ Always convert Excel value to string
-  await marksInput.fill(marks.toString());
-}
-
-
- 
-
-async clickUpdateButton(): Promise<void> {
-  const updateButton = this.page.locator("//button[@type='submit']");
-  
-  await updateButton.waitFor({ state: 'visible', timeout: 10000 });
-  await updateButton.scrollIntoViewIfNeeded();
-  await updateButton.click();
-}
-
-async clickQualification12thButton(): Promise<void> {
-  const dialog = this.page.locator('[role="dialog"]');
-
-  // Click the OUTER clickable container, not the text div
-  const container = dialog.locator(
-    "div.sc-iLWXdy.iduwOU"
-  );
-
-  await container.waitFor({ state: 'visible' });
-  await container.scrollIntoViewIfNeeded();
-
-  const box = await container.boundingBox();
-  if (!box) {
-    throw new Error('12th or Diploma container not found');
+  async fillBoardDropdown(boardText: string): Promise<void> {
+    this.log(`Filling Board dropdown with: ${boardText}`);
+    
+    // Click the dropdown selector
+    await this.safeClick(this.boardDropdown, 'Board dropdown selector');
+    
+    // Wait for dropdown to open and find the input
+    const input = this.page.locator('input[role="combobox"]').first();
+    await this.safeFill(input, boardText, 'Board dropdown input', { validate: false });
+    
+    // Wait for and click the matching option
+    const option = this.page.locator(
+      '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content',
+      { hasText: boardText }
+    );
+    
+    await this.safeClick(option.first(), `Board option: ${boardText}`);
+    
+    // Wait for dropdown to close
+    await this.page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)')
+      .waitFor({ state: 'hidden', timeout: 3000 })
+      .catch(() => {});
   }
 
-  // REAL mouse click (this triggers React synthetic events)
-  await this.page.mouse.click(
-    box.x + box.width / 2,
-    box.y + box.height / 2
-  );
-}
 
+  async selectYear(year: number): Promise<void> {
+    const dialog = this.page.locator('[role="dialog"]');
 
-  
-async click12thOption(): Promise<void> {
-  const option12th = this.page.locator(
-    '.ant-select-dropdown:visible .ant-select-item-option:has-text("12th")'
-  );
+    const yearInput = dialog
+      .getByTestId('year-input')
+      .or(dialog.locator("input[placeholder='Please Select the year']:not([disabled])"))
+      .first();
 
-  // Wait until visible (replaces Thread.sleep)
-  await option12th.waitFor({ state: 'visible', timeout: 5000 });
+    await this.safeClick(yearInput, 'Year input');
 
-  // Click normally (no force unless absolutely needed)
-  await option12th.click();
+    const picker = this.page.locator('.ant-picker-dropdown:visible');
+    await this.waitForVisible(picker);
 
-  console.log('Clicked on 12th option');
-}
+    const yearCell = picker.locator(`.ant-picker-cell-inner:text-is("${year}")`);
 
-async clickDiplomaOption(): Promise<void> {
-  const optionDiploma = this.page.locator(
-    '.ant-select-dropdown:visible .ant-select-item-option:has-text("Diploma")'
-  );
+    if (await yearCell.isVisible()) {
+      await this.safeClick(yearCell, `Year cell: ${year}`);
+    } else {
+      const decadeStart = Math.floor(year / 10) * 10;
+      const decadeLabel = `${decadeStart}-${decadeStart + 9}`;
 
-  // Wait until visible
-  await optionDiploma.waitFor({ state: 'visible', timeout: 5000 });
+      await this.safeClick(picker.locator('.ant-picker-header-view'), 'Decade view header');
+      await this.safeClick(picker.locator(`.ant-picker-cell-inner:text-is("${decadeLabel}")`), `Decade: ${decadeLabel}`);
+      await this.safeClick(picker.locator(`.ant-picker-cell-inner:text-is("${year}")`), `Year: ${year}`);
+    }
 
-  // Click
-  await optionDiploma.click();
+    await picker.waitFor({ state: 'hidden' });
+  }
 
-  console.log('Clicked on Diploma option');
-}
+  async fillMarks(marks: string | number) {
+    await this.safeFill(this.marksInput, marks.toString(), 'Marks input');
+  }
 
+  async clickUpdateButton(): Promise<void> {
+    await this.safeClick(this.updateButton, 'Update button');
+  }
 
+  async clickQualification12thButton(): Promise<void> {
+    const dialog = this.page.locator('[role="dialog"]');
 
+    const container = dialog
+      .getByTestId('qualification-12th-button')
+      .or(dialog.locator('div.sc-iLWXdy.iduwOU'));
+
+    await this.waitForVisible(container);
+    await container.scrollIntoViewIfNeeded();
+
+    const box = await container.boundingBox();
+    if (!box) {
+      throw new Error('12th or Diploma container not found');
+    }
+
+    await this.page.mouse.click(
+      box.x + box.width / 2,
+      box.y + box.height / 2
+    );
+    this.log('Clicked qualification 12th button');
+  }
+
+  async click12thOption(): Promise<void> {
+    const option12th = this.page
+      .getByTestId('12th-option')
+      .or(this.page.locator('.ant-select-dropdown:visible .ant-select-item-option:has-text("12th")'));
+
+    await this.safeClick(option12th, '12th option', { timeout: 5000 });
+  }
+
+  async clickDiplomaOption(): Promise<void> {
+    const optionDiploma = this.page
+      .getByTestId('diploma-option')
+      .or(this.page.locator('.ant-select-dropdown:visible .ant-select-item-option:has-text("Diploma")'));
+
+    await this.safeClick(optionDiploma, 'Diploma option', { timeout: 5000 });
+  }
 }

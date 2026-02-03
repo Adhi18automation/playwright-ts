@@ -1,171 +1,171 @@
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './basepage';
 import { AntdCollegeUtil } from '../utils/AntdCollegeUtil.ts';
-import { AntdDropdownUtil } from '../utils/AntdDropdownUtil.ts';     
+import { AntdDropdownUtil } from '../utils/AntdDropdownUtil.ts';
 
 export class DiplomaInformationPage extends BasePage {
-  
-async fillStateDropdown(stateText: string): Promise<void> {
-  await AntdDropdownUtil.fillSearchableDropdown(
-    this.page,
-    'State',
-    stateText,
-    2,
-    true
-  );
-}
+  private readonly stateDropdown: Locator;
+  private readonly cityDropdown: Locator;
+  private readonly collegeDropdown: Locator;
+  private readonly institutionInput: Locator;
+  private readonly marksTypeDropdown: Locator;
+  private readonly percentageMarksInput: Locator;
+  private readonly cgpaMarksInput: Locator;
+  private readonly cgpaOutOfInput: Locator;
+  private readonly degreeDropdown: Locator;
 
-async fillCityDropdown(cityText: string): Promise<void> {
-  await AntdDropdownUtil.fillSearchableDropdownWithFallback(
-    this.page,
-    'City',
-    cityText,
-    2,
-    false
-  );
-}
+  constructor(page: Page) {
+    super(page);
+    
+    const dialog = this.page.locator('[role="dialog"]');
+    
+    this.stateDropdown = dialog
+      .getByTestId('diploma-state-dropdown')
+      .or(dialog.locator('span:has-text("State")').locator('..').locator('..').locator('div[class*="ant-select-selector"]').nth(1));
+    
+    this.cityDropdown = dialog
+      .getByTestId('diploma-city-dropdown')
+      .or(dialog.locator('span:has-text("City")').locator('..').locator('..').locator('div[class*="ant-select-selector"]').nth(1));
+    
+    this.collegeDropdown = dialog
+      .getByTestId('diploma-college-dropdown')
+      .or(dialog.locator('span:has-text("College Name *")').locator('..').locator('input[type="search"]').nth(1));
+    
+    this.institutionInput = this.page
+      .getByTestId('diploma-institution-input')
+      .or(this.page.locator('#diploma_0_institutionName'))
+      .or(this.page.locator("input[placeholder*='Institution']").first());
+    
+    this.marksTypeDropdown = dialog
+      .getByTestId('diploma-marks-type-dropdown')
+      .or(dialog.locator('span:has-text("Marks (percentage) *")').locator('..').locator('..').locator('span[class*="ant-select-selection-item"]').nth(1));
+    
+    this.percentageMarksInput = this.page
+      .getByTestId('diploma-percentage-marks')
+      .or(this.page.locator('#diploma_0_marks'));
+    
+    this.cgpaMarksInput = this.page
+      .getByTestId('diploma-cgpa-marks')
+      .or(this.page.locator('#diploma_0_cgpaValue'));
+    
+    this.cgpaOutOfInput = this.page
+      .getByTestId('diploma-cgpa-outof')
+      .or(this.page.locator('#diploma_0_cgpaOutof'));
+    
+    this.degreeDropdown = dialog
+      .getByTestId('diploma-degree-dropdown')
+      .or(dialog.locator('span:has-text("Degree")').locator('..').locator('..').locator('div[class*="ant-select-selector"]').nth(1));
+  }
+
+  async fillStateDropdown(stateText: string): Promise<void> {
+    await this.selectAntdDropdown(this.stateDropdown, stateText, 'Diploma State dropdown');
+  }
+
+  async fillCityDropdown(cityText: string): Promise<void> {
+    await this.selectAntdDropdown(this.cityDropdown, cityText, 'Diploma City dropdown');
+  }
 
   async fillCollegeDropdown(collegeText: string): Promise<void> {
-    const dialog = this.page.locator('[role="dialog"]');
-
-    const collegeInput = dialog.locator(
-      "(//span[text()='College Name *'])[2]/..//input[@type='search']"
-    );
-
     await AntdCollegeUtil.selectCollegeWithFallback(
       this.page,
-      collegeInput,
+      this.collegeDropdown,
       collegeText
     );
   }
 
   async fillInstitutionName(institutionName: string): Promise<void> {
-    const institutionInput = this.page.locator("//input[@id='diploma_0_institutionName']");
+    await this.waitForNavigation();
     
-    // Wait a bit for the field to appear after college selection
-    await this.page.waitForTimeout(2000);
+    const primaryInput = this.page
+      .getByTestId('diploma-institution-input')
+      .or(this.page.locator('#diploma_0_institutionName'));
     
-    // Try to find the input with fallback locators
+    const fallback1 = this.page.locator("input[placeholder*='Institution']").first();
+    const fallback2 = this.page.locator("label:has-text('Institution Name') + input").first();
+    
     try {
-      await institutionInput.waitFor({ state: 'visible', timeout: 5000 });
-      await institutionInput.fill(institutionName);
+      await this.safeFill(primaryInput, institutionName, 'Institution name input', { timeout: 5000 });
     } catch (error) {
-      // Try alternative locators if the primary one fails
-      const alternativeInput = this.page.locator("input[placeholder*='Institution']").first();
-      if (await alternativeInput.isVisible()) {
-        await alternativeInput.fill(institutionName);
-      } else {
-        // Try by label
-        const labelInput = this.page.locator("label:has-text('Institution Name') + input").first();
-        if (await labelInput.isVisible()) {
-          await labelInput.fill(institutionName);
-        }
+      try {
+        await this.safeFill(fallback1, institutionName, 'Institution name input (fallback 1)', { timeout: 3000 });
+      } catch (error2) {
+        await this.safeFill(fallback2, institutionName, 'Institution name input (fallback 2)', { timeout: 3000 });
       }
     }
   }
 
   async selectDiplomaYear(year: number | string): Promise<void> {
-    // Diploma year input using the specific locator
-    const yearInput = this.page.locator("(//input[@placeholder='Please Select the year'])[3]");
+    const yearInput = this.page
+      .getByTestId('diploma-year-input')
+      .or(this.page.locator("input[placeholder='Please Select the year']").nth(2));
 
-    // 1️⃣ Open picker
-    await yearInput.waitFor({ state: 'visible' });
-    await yearInput.click();
+    await this.safeClick(yearInput, 'Diploma year input');
 
-    // 2️⃣ Wait for calendar dropdown to appear
     const picker = this.page.locator('.ant-picker-dropdown:visible');
-    await picker.waitFor({ state: 'visible' });
+    await this.waitForVisible(picker);
 
-    // 3️⃣ Find and click the year
-    const yearCell = picker.locator(
-      `.ant-picker-cell-inner:text-is("${year}")`
-    );
+    const yearCell = picker.locator(`.ant-picker-cell-inner:text-is("${year}")`);
 
-    // 4️⃣ If year already visible, click directly
     if (await yearCell.isVisible()) {
-      await yearCell.click();
-    } 
-    // 5️⃣ Else navigate via decade panel
-    else {
+      await this.safeClick(yearCell, `Year cell: ${year}`);
+    } else {
       const decadeStart = Math.floor(Number(year) / 10) * 10;
       const decadeLabel = `${decadeStart}-${decadeStart + 9}`;
 
-      // Move to decade view
-      await picker.locator('.ant-picker-header-view').click();
-
-      // Select correct decade
-      await picker
-        .locator(`.ant-picker-cell-inner:text-is("${decadeLabel}")`)
-        .click();
-
-      // Select year
-      await picker
-        .locator(`.ant-picker-cell-inner:text-is("${year}")`)
-        .click();
+      await this.safeClick(picker.locator('.ant-picker-header-view'), 'Decade view header');
+      await this.safeClick(picker.locator(`.ant-picker-cell-inner:text-is("${decadeLabel}")`), `Decade: ${decadeLabel}`);
+      await this.safeClick(picker.locator(`.ant-picker-cell-inner:text-is("${year}")`), `Year: ${year}`);
     }
 
-    // 6️⃣ Ensure picker closed
     await picker.waitFor({ state: 'hidden' });
   }
 
   async clickMarksTypeDropdown(): Promise<void> {
-    const dropdown = this.page.locator("(//span[text()='Marks (percentage) *'])[2]/../..//span[@class='ant-select-selection-item']");
-    await dropdown.waitFor({ state: 'visible' });
-    await dropdown.click();
+    await this.safeClick(this.marksTypeDropdown, 'Marks type dropdown');
   }
 
   async selectPercentageOption(): Promise<void> {
-    const percentageOption = this.page.locator("//div[@id='Percentage']");
-    await percentageOption.waitFor({ state: 'visible' });
-    await percentageOption.click();
+    const percentageOption = this.page
+      .getByTestId('percentage-option')
+      .or(this.page.locator('#Percentage'))
+      .or(this.page.getByRole('option', { name: /percentage/i }));
+    
+    await this.safeClick(percentageOption, 'Percentage option');
   }
 
   async selectCGPAOption(): Promise<void> {
-    const cgpaOption = this.page.locator("//div[@id='CGPA']");
-    await cgpaOption.waitFor({ state: 'visible' });
-    await cgpaOption.click();
+    const cgpaOption = this.page
+      .getByTestId('cgpa-option')
+      .or(this.page.locator('#CGPA'))
+      .or(this.page.getByRole('option', { name: /cgpa/i }));
+    
+    await this.safeClick(cgpaOption, 'CGPA option');
   }
 
   async fillPercentageMarks(marks: string): Promise<void> {
-    const marksInput = this.page.locator("//input[@id='diploma_0_marks']");
-    await marksInput.waitFor({ state: 'visible', timeout: 10000 });
-    await marksInput.clear();
-    await marksInput.fill(marks);
-    await marksInput.blur(); // Ensure the input loses focus to trigger any validation
+    await this.safeFill(this.percentageMarksInput, marks, 'Percentage marks input');
+    await this.percentageMarksInput.blur();
   }
 
   async fillCGPAMarks(marks: string): Promise<void> {
-    const marksInput = this.page.locator("//input[@id='diploma_0_cgpaValue']");
-    await marksInput.waitFor({ state: 'visible', timeout: 10000 });
-    await marksInput.clear();
-    await marksInput.fill(marks);
-    await marksInput.blur(); // Ensure the input loses focus to trigger any validation
+    await this.safeFill(this.cgpaMarksInput, marks, 'CGPA marks input');
+    await this.cgpaMarksInput.blur();
   }
 
   async fillCGPAOutOf(cgpaOutOf: string): Promise<void> {
-    const cgpaOutOfInput = this.page.locator("//input[@id='diploma_0_cgpaOutof']");
-    await cgpaOutOfInput.waitFor({ state: 'visible', timeout: 10000 });
-    await cgpaOutOfInput.clear();
-    await cgpaOutOfInput.fill(cgpaOutOf);
-    await cgpaOutOfInput.blur(); // Ensure the input loses focus to trigger any validation
+    await this.safeFill(this.cgpaOutOfInput, cgpaOutOf, 'CGPA out of input');
+    await this.cgpaOutOfInput.blur();
   }
-async fillDegreeDropdown(degreeText: string): Promise<void> {
-  await AntdDropdownUtil.fillSearchableDropdown(
-    this.page,
-    'Degree',
-    degreeText,
-    2,
-    true
-  );
-}
 
-async fillDepartmentDropdown(departmentText: string): Promise<void> {
-  await AntdDropdownUtil.fillDepartmentDropdown(
-    this.page,
-    departmentText,
-    true
-  );
-}
+  async fillDegreeDropdown(degreeText: string): Promise<void> {
+    await this.selectAntdDropdown(this.degreeDropdown, degreeText, 'Diploma Degree dropdown');
+  }
 
-
-
+  async fillDepartmentDropdown(departmentText: string): Promise<void> {
+    const departmentDropdown = this.page.locator('[role="dialog"]')
+      .getByTestId('diploma-department-dropdown')
+      .or(this.page.locator('[role="dialog"]').locator('span:has-text("Department")').locator('..').locator('..').locator('div[class*="ant-select-selector"]').nth(1));
+    
+    await this.selectAntdDropdown(departmentDropdown, departmentText, 'Diploma Department dropdown');
+  }
 }

@@ -1,94 +1,47 @@
-import { Page } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './basepage';
 
 export class HomePage extends BasePage {
+  private readonly completeNowButton: Locator;
+  private readonly resumeButton: Locator;
+  private readonly rolesIcon: Locator;
+
   constructor(page: Page) {
     super(page);
-  }
+    this.completeNowButton = this.page
+      .getByTestId('complete-now-button')
+      .or(this.page.getByRole('button', { name: /complete now/i }))
+      .or(this.page.locator('div:has-text("Complete Now")').first());
 
-  private get completeNowButton() {
-    return this.page.locator("//div[text()='Complete Now']");
-  }
+    this.resumeButton = this.page
+      .getByTestId('my-resume-button')
+      .or(this.page.getByRole('link', { name: 'My Resume', exact: true }))
+      .or(this.page.locator('a[href="/resume"]'));
 
-  private get resumeButton() {
-    return this.page.locator("//div[text()='My Resume']");
-  }
-
-  private get resumeButtonAlt() {
-    return this.page.locator("//button[contains(text(),'My Resume')]");
-  }
-
-  private get resumeButtonAlt2() {
-    return this.page.locator("//a[contains(text(),'My Resume')]");
-  }
-
-  private get resumeButtonAlt3() {
-    return this.page.locator("[data-testid='my-resume-button']");
+    this.rolesIcon = this.page
+      .getByTestId('roles-link')
+      .or(this.page.getByRole('link', { name: /roles/i }))
+      .or(this.page.locator('a:has-text("Roles")'));
   }
 
   async waitForCompleteNowButton(): Promise<void> {
-    try {
-      await this.completeNowButton.waitFor({ 
-        state: 'visible', 
-        timeout: 10000 
-      });
-    } catch (error) {
-      throw new Error('Complete Now button was not found or not visible within 10 seconds');
-    }
+    this.log('Waiting for Complete Now button');
+    await this.waitForVisible(this.completeNowButton, { timeout: 10000 });
   }
 
   async clickCompleteNowButton(): Promise<void> {
     await this.waitForCompleteNowButton();
-    
-    const isVisible = await this.completeNowButton.isVisible();
-    if (!isVisible) {
-      throw new Error('Complete Now button is not visible');
-    }
-    
-    await this.completeNowButton.click();
+    await this.safeClick(this.completeNowButton, 'Complete Now button');
   }
 
   async clickResumeButton(): Promise<void> {
-    try {
-      console.log('Looking for My Resume button...');
-      
-      const resumeButton = this.page.locator("//div[text()='My Resume']");
-      const count = await resumeButton.count();
-      console.log(`My Resume button found: ${count} elements`);
-      
-      if (count === 0) {
-        throw new Error('My Resume button not found with locator //div[text()="My Resume"]');
-      }
-      
-      // Wait for the button to be visible
-      await resumeButton.first().waitFor({ state: 'visible', timeout: 15000 });
-      const isVisible = await resumeButton.first().isVisible();
-      console.log(`My Resume button visibility: ${isVisible}`);
-      
-      if (!isVisible) {
-        throw new Error('My Resume button is not visible');
-      }
-      
-      console.log('Clicking My Resume button...');
-      await resumeButton.first().click();
-      
-      // Wait for navigation after clicking
-      console.log('Waiting for page to stabilize after clicking My Resume button...');
-      await this.page.waitForTimeout(3000);
-      
-      console.log('My Resume button clicked successfully');
-    } catch (error) {
-      console.error('Error clicking My Resume button:', error);
-      throw new Error('My Resume button was not found or not clickable');
-    }
-  }
-
-    private get rolesIcon() {
-    return this.page.locator("//a[normalize-space()='Roles']");
+    this.log('Looking for My Resume button');
+    await this.safeClick(this.resumeButton, 'My Resume button', { timeout: 15000 });
+    await this.waitForNavigation();
+    this.log('My Resume button clicked successfully');
   }
 
   async clickRolesIcon(): Promise<void> {
-    await this.rolesIcon.click();
+    await this.safeClick(this.rolesIcon, 'Roles icon');
   }
- 
 }

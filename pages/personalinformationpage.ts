@@ -1,125 +1,101 @@
-import { expect, Page } from '@playwright/test';
+import { expect, Page, Locator } from '@playwright/test';
 import { BasePage } from './basepage';
 import { AntdDropdownUtil } from '../utils/AntdDropdownUtil';
 
-
 export class PersonalInformationPage extends BasePage {
+  private readonly additionalInfoDialog: Locator;
+  private readonly anywhereCheckbox: Locator;
+  private readonly sameAsPermanentAddressCheckbox: Locator;
+  private readonly updateButton: Locator;
+  private readonly pinCodeInput: Locator;
+
   constructor(page: Page) {
     super(page);
+    
+    this.additionalInfoDialog = this.page.locator('[role="dialog"]');
+    
+    this.anywhereCheckbox = this.page
+      .getByTestId('anywhere-checkbox')
+      .or(this.page.getByRole('checkbox', { name: 'Anywhere', exact: true }))
+      .or(this.page.locator('div:has-text("Anywhere")').locator('..').locator('..').locator('input[type="checkbox"]').first());
+    
+    this.sameAsPermanentAddressCheckbox = this.page
+      .getByTestId('same-as-permanent-checkbox')
+      .or(this.page.getByRole('checkbox', { name: 'Same as permanent address', exact: true }))
+      .or(this.page.locator('div:has-text("Same as permanent address")').locator('..').locator('..').locator('input[type="checkbox"]').first());
+    
+    this.updateButton = this.page
+      .getByTestId('update-button')
+      .or(this.page.getByRole('button', { name: /update/i }))
+      .or(this.page.locator('button[type="submit"]'));
+    
+    this.pinCodeInput = this.page.locator('#permPostCode');
   }
-
-  // ✅ Additional Info dialog (IMPORTANT)
-  private get additionalInfoDialog() {
-    return this.page.locator('[role="dialog"]');
-  }
-
-
-  private get anywhereCheckbox() {
-    return this.page.locator("//div[text()='Anywhere']/../..//span[@class='ant-checkbox']");
-  }
-
-  private get sameAsPermanentAddressCheckbox() {
-    return this.page.locator("//div[text()='Same as permanent address']/../..//span[@class='ant-checkbox']");
-  }
-
-  private get updateButton() {
-    return this.page.locator("//button[@type='submit']");
-  }
-
-
-
-
-private get pinCodeInput() {
-  return this.page.locator('#permPostCode');
-}
 
 
 
   async clickAnywhereCheckbox(): Promise<void> {
-    await this.anywhereCheckbox.click();
+    await this.safeClick(this.anywhereCheckbox, 'Anywhere checkbox');
   }
 
   async clickSameAsPermanentAddressCheckbox(): Promise<void> {
-    console.log('Attempting to click "Same as permanent address" checkbox...');
+    this.log('Attempting to click "Same as permanent address" checkbox');
     
-    try {
-      // Try the primary locator first
-      await this.sameAsPermanentAddressCheckbox.waitFor({ state: 'visible', timeout: 5000 });
-      await this.sameAsPermanentAddressCheckbox.click();
-      console.log('Successfully clicked "Same as permanent address" checkbox');
-    } catch (error) {
-      console.log('Primary locator failed, trying fallback locators...');
+    // Try multiple approaches to find and click the checkbox
+    const locators = [
+      // Approach 1: Try the checkbox input directly
+      this.sameAsPermanentAddressCheckbox,
       
-      // Fallback 1: Try with different text matching
-      const fallback1 = this.page.locator("//div[contains(text(),'Same as permanent')]/../..//span[@class='ant-checkbox']");
+      // Approach 2: Try clicking the label wrapper
+      this.page.locator('label:has-text("Same as permanent address")').first(),
+      
+      // Approach 3: Try the checkbox wrapper
+      this.page.locator('.ant-checkbox-wrapper:has-text("Same as permanent address")').first(),
+      
+      // Approach 4: Try finding by the text and going up to the wrapper
+      this.page.locator('span:has-text("Same as permanent address")').locator('..').first()
+    ];
+    
+    for (let i = 0; i < locators.length; i++) {
       try {
-        await fallback1.waitFor({ state: 'visible', timeout: 3000 });
-        await fallback1.click();
-        console.log('Successfully clicked with fallback 1 locator');
-      } catch (error2) {
-        console.log('Fallback 1 failed, trying fallback 2...');
-        
-        // Fallback 2: Try with input element
-        const fallback2 = this.page.locator("//div[contains(text(),'Same as permanent')]/../..//input[@type='checkbox']");
-        try {
-          await fallback2.waitFor({ state: 'visible', timeout: 3000 });
-          await fallback2.click();
-          console.log('Successfully clicked with fallback 2 locator');
-        } catch (error3) {
-          console.log('All locators failed for "Same as permanent address" checkbox');
-          throw new Error('Could not find or click "Same as permanent address" checkbox');
-        }
+        await this.safeClick(locators[i], `Same as permanent address checkbox (attempt ${i + 1})`, { timeout: 3000 });
+        this.log('Successfully clicked "Same as permanent address" checkbox');
+        return;
+      } catch (error) {
+        this.log(`Attempt ${i + 1} failed, trying next approach...`, 'warn');
       }
     }
+    
+    this.log('All locator attempts failed for "Same as permanent address" checkbox', 'error');
+    throw new Error('Could not find or click "Same as permanent address" checkbox');
   }
 
   async clickUpdateButton(): Promise<void> {
-    console.log('Attempting to click Update button...');
+    this.log('Attempting to click Update button');
     
-    try {
-      // Wait for button to be visible and enabled
-      await this.updateButton.waitFor({ state: 'visible', timeout: 5000 });
-      console.log('Update button is visible');
-      
-      // Check if button is enabled
-      const isEnabled = await this.updateButton.isEnabled();
-      console.log('Update button is enabled:', isEnabled);
-      
-      if (!isEnabled) {
-        console.log('Update button is disabled, waiting for it to be enabled...');
-        await this.page.waitForFunction(() => this.updateButton.isEnabled(), { timeout: 10000 });
-      }
-      
-      // Click the button
-      await this.updateButton.click();
-      console.log('Successfully clicked Update button');
-      
-      // Wait a moment to see if form processes
-      await this.page.waitForTimeout(2000);
-      
-      // Check if we're still on the same dialog (form might close after successful update)
-      const isDialogVisible = await this.additionalInfoDialog.isVisible().catch(() => false);
-      console.log('Dialog still visible after update:', isDialogVisible);
-      
-      if (!isDialogVisible) {
-        console.log('Form appears to have been submitted successfully (dialog closed)');
-      } else {
-        console.log('Dialog still open, checking for any validation messages...');
-        // Check for error messages
-        const errorElements = this.additionalInfoDialog.locator('.ant-form-item-explain-error');
-        const errorCount = await errorElements.count();
-        if (errorCount > 0) {
-          console.log('Found', errorCount, 'validation error messages');
-          for (let i = 0; i < errorCount; i++) {
-            const errorText = await errorElements.nth(i).textContent();
-            console.log('Error', i + 1, ':', errorText);
-          }
+    await this.waitForVisible(this.updateButton, { timeout: 5000 });
+    await this.waitForEnabled(this.updateButton, { timeout: 10000 });
+    await this.safeClick(this.updateButton, 'Update button');
+    this.log('Successfully clicked Update button');
+    
+    await this.page.waitForTimeout(2000);
+    
+    const isDialogVisible = await this.additionalInfoDialog.isVisible().catch(() => false);
+    this.log(`Dialog still visible after update: ${isDialogVisible}`);
+    
+    if (!isDialogVisible) {
+      this.log('Form appears to have been submitted successfully (dialog closed)');
+    } else {
+      this.log('Dialog still open, checking for any validation messages');
+      const errorElements = this.additionalInfoDialog.locator('.ant-form-item-explain-error');
+      const errorCount = await errorElements.count();
+      if (errorCount > 0) {
+        this.log(`Found ${errorCount} validation error messages`, 'warn');
+        for (let i = 0; i < errorCount; i++) {
+          const errorText = await errorElements.nth(i).textContent();
+          this.log(`Error ${i + 1}: ${errorText}`, 'warn');
         }
       }
-      
-    } catch (error) {
-      console.error('Error clicking Update button:', error);
-      throw error;
     }
   }
 
@@ -130,34 +106,34 @@ private async selectAntdDropdownByIndex(
   value: string,
   index = 0
 ): Promise<void> {
-
   const dialog = this.additionalInfoDialog;
 
   const selector = dialog
-    .locator(`//span[normalize-space()='${label} *']/../..//div[contains(@class,'ant-select-selector')]`)
+    .locator(`span:has-text("${label} *")`)
+    .locator('..')
+    .locator('..')
+    .locator('div[class*="ant-select-selector"]')
     .nth(index);
 
   const input = dialog
-    .locator(`//span[normalize-space()='${label} *']/../..//input[@role='combobox']`)
+    .locator(`span:has-text("${label} *")`)
+    .locator('..')
+    .locator('..')
+    .locator('input[role="combobox"]')
     .nth(index);
 
-  // 1️⃣ Open dropdown
-  await selector.waitFor({ state: 'visible', timeout: 10000 });
-  await selector.click();
+  await this.waitForVisible(selector, { timeout: 10000 });
+  await this.safeClick(selector, `${label} dropdown selector`);
+  await this.safeFill(input, value, `${label} dropdown input`, { validate: false });
 
-  // 2️⃣ Fill FAST (no slow typing)
-  await input.fill(value);
-
-  // 3️⃣ Match option using hasText (🔥 FIX)
   const option = this.page.locator(
     '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content',
     { hasText: value }
   );
 
-  await option.first().waitFor({ state: 'visible', timeout: 5000 });
-  await option.first().click();
+  await this.waitForVisible(option.first(), { timeout: 5000 });
+  await this.safeClick(option.first(), `${label} dropdown option: ${value}`);
 
-  // 4️⃣ Ensure dropdown closed
   await this.page
     .locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)')
     .waitFor({ state: 'hidden' });
@@ -169,94 +145,98 @@ async fillCountry(country: string) {
   const dialog = this.additionalInfoDialog;
 
   const selector = dialog
-    .locator("//span[normalize-space()='Country *']/../..//div[contains(@class,'ant-select-selector')]")
+    .locator('span:has-text("Country *")')
+    .locator('..')
+    .locator('..')
+    .locator('div[class*="ant-select-selector"]')
     .first();
 
   const input = dialog
-    .locator("//span[normalize-space()='Country *']/../..//input[@role='combobox']")
+    .locator('span:has-text("Country *")')
+    .locator('..')
+    .locator('..')
+    .locator('input[role="combobox"]')
     .first();
 
-  await selector.click();
-  await input.fill(country);
+  await this.safeClick(selector, 'Country dropdown selector');
+  await this.safeFill(input, country, 'Country dropdown input', { validate: false });
 
   const option = this.page.locator(
     '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content',
     { hasText: country }
   );
 
-  await option.first().click();
+  await this.safeClick(option.first(), `Country option: ${country}`);
 }
-
-
-
 
 async fillState(state: string) {
   const dialog = this.additionalInfoDialog;
 
-  const selector = dialog.locator(
-    "//span[normalize-space()='State *']/../..//div[contains(@class,'ant-select-selector')]"
-  ).first();
+  const selector = dialog
+    .locator('span:has-text("State *")')
+    .locator('..')
+    .locator('..')
+    .locator('div[class*="ant-select-selector"]')
+    .first();
 
-  const input = dialog.locator(
-    "//span[normalize-space()='State *']/../..//input[@role='combobox']"
-  ).first();
+  const input = dialog
+    .locator('span:has-text("State *")')
+    .locator('..')
+    .locator('..')
+    .locator('input[role="combobox"]')
+    .first();
 
-  // Wait until State dropdown becomes enabled
   await expect(input).toBeEnabled({ timeout: 15000 });
 
-  await selector.click();
-  await input.fill(state);
+  await this.safeClick(selector, 'State dropdown selector');
+  await this.safeFill(input, state, 'State dropdown input', { validate: false });
 
   const option = this.page.locator(
     '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content',
     { hasText: state }
   );
 
-  await option.first().click();
+  await this.safeClick(option.first(), `State option: ${state}`);
 
-  // 🔥 IMPORTANT: wait until value is committed
-  await dialog.locator(
-    "//span[normalize-space()='State *']/../..//span[contains(@class,'ant-select-selection-item')]"
-  ).waitFor({ state: 'visible', timeout: 5000 });
+  await dialog
+    .locator('span:has-text("State *")')
+    .locator('..')
+    .locator('..')
+    .locator('span[class*="ant-select-selection-item"]')
+    .first()
+    .waitFor({ state: 'visible', timeout: 5000 });
 }
-
-
-
 
 async fillCity(city: string) {
   const dialog = this.additionalInfoDialog;
 
   const selector = dialog
-    .locator("//span[normalize-space()='City *']/../..//div[contains(@class,'ant-select-selector')]")
+    .locator('span:has-text("City *")')
+    .locator('..')
+    .locator('..')
+    .locator('div[class*="ant-select-selector"]')
     .first();
 
   const input = dialog
-    .locator("//span[normalize-space()='City *']/../..//input[@role='combobox']")
+    .locator('span:has-text("City *")')
+    .locator('..')
+    .locator('..')
+    .locator('input[role="combobox"]')
     .first();
 
-  // 🔥 WAIT until City input is enabled (IMPORTANT)
-  await this.page.waitForFunction(
-    el => !el.hasAttribute('disabled'),
-    await input.elementHandle(),
-    { timeout: 15000 }
-  );
+  await expect(input).toBeEnabled({ timeout: 15000 });
 
-  // Open dropdown
-  await selector.click();
+  await this.safeClick(selector, 'City dropdown selector');
+  await this.safeFill(input, city, 'City dropdown input', { validate: false });
 
-  // Fill text
-  await input.fill(city);
-
-  // Select option
   const option = this.page.locator(
     '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option-content',
     { hasText: city }
   );
 
-  await option.first().waitFor({ state: 'visible', timeout: 5000 });
-  await option.first().click();
+  await this.waitForVisible(option.first(), { timeout: 5000 });
+  await this.safeClick(option.first(), `City option: ${city}`);
 
-  // Ensure dropdown closed
   await this.page
     .locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)')
     .waitFor({ state: 'hidden' });
@@ -267,20 +247,15 @@ async fillCity(city: string) {
   async fillPinCode(pinCode: string | number): Promise<void> {
     const value = String(pinCode);
 
-    await this.pinCodeInput.waitFor({ state: 'visible', timeout: 15000 });
-
-    await this.pinCodeInput.click();
-    await this.pinCodeInput.focus();
-
+    await this.waitForVisible(this.pinCodeInput, { timeout: 15000 });
+    await this.safeClick(this.pinCodeInput, 'Pin code input');
+    
     await this.page.keyboard.press('Control+A');
     await this.page.keyboard.press('Backspace');
     await this.page.keyboard.type(value, { delay: 50 });
-
-    // trigger validation
     await this.page.keyboard.press('Tab');
 
-    // wait until validation clears WITHOUT expect
-    await this.pinCodeInput.waitFor({ state: 'visible' });
+    await this.waitForVisible(this.pinCodeInput);
   }
 
   
