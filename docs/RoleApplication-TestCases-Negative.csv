@@ -1,0 +1,54 @@
+TC ID,Module,Test Case Title,Priority,Precondition,Step No,Step Description,Expected Result,Test Data (Excel Column),Type
+TC-1.2,Login & Authentication,Login with Invalid Email Format,P1 - High,None,1,Open application URL: https://auth.uat.pluginlive.com/,Login page is displayed,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email Format,P1 - High,None,2,"Enter invalid email format (e.g., student@, student.com, @domain)",Email entered in textfield,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email Format,P1 - High,None,3,Enter any password,Password entered,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email Format,P1 - High,None,4,Click Agree checkbox,Checkbox is checked,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email Format,P1 - High,None,5,Click Login button,Error: 'Please enter a valid email address'. Login blocked,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,1,Open application URL,Login page is displayed,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,2,Leave email field empty,Email field is empty,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,3,Leave password field empty,Password field is empty,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,4,Click Login button,Error: 'This field is required' shown for both fields. Login blocked,N/A,Negative
+TC-1.4,Login & Authentication,Login without Agree Checkbox,P1 - High,None,1,Open application URL,Login page is displayed,N/A,Negative
+TC-1.4,Login & Authentication,Login without Agree Checkbox,P1 - High,None,2,Enter valid email and password,Credentials entered,Student-Email-ID / Student-PassWord,Negative
+TC-1.4,Login & Authentication,Login without Agree Checkbox,P1 - High,None,3,Do NOT click Agree checkbox,Checkbox remains unchecked,N/A,Negative
+TC-1.4,Login & Authentication,Login without Agree Checkbox,P1 - High,None,4,Click Login button,Login blocked. User prompted to accept terms,N/A,Negative
+TC-1.5,Login & Authentication,Login with Invalid Credentials (Wrong Password),P1 - High,Valid email exists,1,Open application URL,Login page is displayed,N/A,Negative
+TC-1.5,Login & Authentication,Login with Invalid Credentials (Wrong Password),P1 - High,Valid email exists,2,Enter valid email,Email entered,Student-Email-ID,Negative
+TC-1.5,Login & Authentication,Login with Invalid Credentials (Wrong Password),P1 - High,Valid email exists,3,Enter incorrect password,Wrong password entered,N/A,Negative
+TC-1.5,Login & Authentication,Login with Invalid Credentials (Wrong Password),P1 - High,Valid email exists,4,Click Agree checkbox and Login button,Error: 'Invalid credentials'. Login blocked,N/A,Negative
+TC-3.3,Role Page,Search for Non-Existent Role,P1 - High,User on Roles page,1,Enter a role name that does not exist in the system,Text entered in search bar,N/A,Negative
+TC-3.3,Role Page,Search for Non-Existent Role,P1 - High,User on Roles page,2,Verify search results,No matching roles displayed. 'No roles found' or equivalent message shown,N/A,Negative
+TC-3.4,Role Page,Empty Role Search,P2 - Medium,User on Roles page,1,Leave search bar empty and trigger search,All available roles displayed or prompt to enter a search term,N/A,Negative
+TC-6.10,No Option Selected,Click Add Without Choosing Any of the 10 Options,P1 - High,Add Skill page open (10 options visible),1,Do NOT choose any of the 10 options. Do NOT check any checkbox,No option selected. No checkbox checked,N/A,Negative
+TC-6.10,No Option Selected,Click Add Without Choosing Any of the 10 Options,P1 - High,Add Skill page open (10 options visible),2,Click 'Add' button,'Add' button is disabled or error: 'Please select at least one skill'. No skill added,N/A,Negative
+TC-6.11,Option 3 - No Checkbox,Expand Category Without Checking Checkbox,P1 - High,Add Skill page open,1,Click 'Work Experience' category to expand it,Work Experience section expands. One checkbox displayed,N/A,Negative
+TC-6.11,Option 3 - No Checkbox,Expand Category Without Checking Checkbox,P1 - High,Add Skill page open,2,Do NOT check the checkbox,Checkbox remains unchecked,N/A,Negative
+TC-6.11,Option 3 - No Checkbox,Expand Category Without Checking Checkbox,P1 - High,Add Skill page open,3,Click 'Add' button,'Add' button is disabled or error shown. At least one checkbox must be selected,N/A,Negative
+TC-6.12,Option 1 - No Checkbox,Expand Academics Without Checking 10th or 12th,P1 - High,Add Skill page open,1,Click 'Academics' category to expand it,Academics section expands. Two checkboxes displayed: 10th and 12th,N/A,Negative
+TC-6.12,Option 1 - No Checkbox,Expand Academics Without Checking 10th or 12th,P1 - High,Add Skill page open,2,Do NOT check either 10th or 12th checkbox,Both checkboxes remain unchecked,N/A,Negative
+TC-6.12,Option 1 - No Checkbox,Expand Academics Without Checking 10th or 12th,P1 - High,Add Skill page open,3,Click 'Add' button,Error shown. At least one academic checkbox (10th or 12th) must be selected,N/A,Negative
+TC-6.13,Option 1 - No Entry,Academics Category When No 10th/12th Records Exist,P1 - High,Student has no 10th/12th education records,1,Click 'Academics' category to expand it,Academics section expands. 10th and 12th checkboxes are disabled or empty state shown,N/A,Negative
+TC-6.13,Option 1 - No Entry,Academics Category When No 10th/12th Records Exist,P1 - High,Student has no 10th/12th education records,2,Attempt to select checkboxes,Checkboxes are disabled. Cannot select academic skills without existing records,N/A,Negative
+TC-6.14,Option 3 - No Entry,Work Experience Category When No Records Exist,P1 - High,Student has no Work Experience entries,1,Click 'Work Experience' category to expand it,Work Experience section expands. Checkbox disabled or empty list message shown,N/A,Negative
+TC-6.14,Option 3 - No Entry,Work Experience Category When No Records Exist,P1 - High,Student has no Work Experience entries,2,Attempt to click 'Add',No checkbox available. 'Add' button disabled. Student must use Additional Skill Input to create an entry first,N/A,Negative
+TC-6.15,Option 2 - No Entry,Internship Category When No Records Exist,P1 - High,Student has no Internship entries,1,Click 'Internship' category to expand it,Internship section expands. Checkbox disabled or empty list message shown,N/A,Negative
+TC-6.15,Option 2 - No Entry,Internship Category When No Records Exist,P1 - High,Student has no Internship entries,2,Attempt to click 'Add',No checkbox available. 'Add' button disabled,N/A,Negative
+TC-6.16,Option 4 - No Entry,Training Course Category When No Records Exist,P1 - High,Student has no Training Course entries,1,Click 'Training Course' category to expand it,Training Course section expands. Checkbox disabled or empty list message shown,N/A,Negative
+TC-6.16,Option 4 - No Entry,Training Course Category When No Records Exist,P1 - High,Student has no Training Course entries,2,Attempt to click 'Add',No checkbox available. 'Add' button disabled,N/A,Negative
+TC-6.17,Option 5 - No Entry,Project Category When No Records Exist,P1 - High,Student has no Project entries,1,Click 'Project' category to expand it,Project section expands. Checkbox disabled or empty list message shown,N/A,Negative
+TC-6.17,Option 5 - No Entry,Project Category When No Records Exist,P1 - High,Student has no Project entries,2,Attempt to click 'Add',No checkbox available. 'Add' button disabled,N/A,Negative
+TC-7.6,Option 10 - Validation,Save Additional Entry with Required Fields Empty,P1 - High,Any Additional Skill Input page open (e.g. Add Work Experience),1,Open 'Add Work Experience' page,Work Experience form opens with Ant Design fields,N/A,Negative
+TC-7.6,Option 10 - Validation,Save Additional Entry with Required Fields Empty,P1 - High,Any Additional Skill Input page open (e.g. Add Work Experience),2,Leave all required fields empty. Click Save,Validation errors shown for each required field. Entry NOT saved,N/A,Negative
+TC-7.7,Option 6 - Validation,Save Additional Academics Entry with Required Fields Empty,P1 - High,Add Academics page open,1,Open 'Add Academics' page,Education form opens with 10th/12th fields,N/A,Negative
+TC-7.7,Option 6 - Validation,Save Additional Academics Entry with Required Fields Empty,P1 - High,Add Academics page open,2,Leave required fields empty. Click Save,Validation errors shown. Entry NOT saved,N/A,Negative
+TC-9.2,Upload Resume,Apply Without Uploading Resume,P1 - High,Upload Resume page open,1,Do NOT upload any file,No file selected. Upload area is empty,N/A,Negative
+TC-9.2,Upload Resume,Apply Without Uploading Resume,P1 - High,Upload Resume page open,2,Click 'Apply' button,Error: 'Please upload a resume'. Submission blocked,N/A,Negative
+TC-9.3,Upload Resume,Upload Unsupported File Format,P1 - High,Upload Resume page open,1,Upload a file with unsupported format (e.g. .txt or .jpg or .exe),File selected for upload,N/A,Negative
+TC-9.3,Upload Resume,Upload Unsupported File Format,P1 - High,Upload Resume page open,2,Verify system response,Error: 'File format not supported'. Only PDF/DOC/DOCX accepted,N/A,Negative
+TC-9.4,Upload Resume,Upload File Exceeding Size Limit,P1 - High,Upload Resume page open,1,Upload a file that exceeds maximum allowed size,File selected for upload,N/A,Negative
+TC-9.4,Upload Resume,Upload File Exceeding Size Limit,P1 - High,Upload Resume page open,2,Verify system response,Error: 'File size exceeds limit'. Upload rejected,N/A,Negative
+TC-9.5,Upload Resume,Duplicate Application for Same Role,P1 - High,User already applied for the role,1,Navigate to the same role and click 'Apply' again,System detects duplicate application,N/A,Negative
+TC-9.5,Upload Resume,Duplicate Application for Same Role,P1 - High,User already applied for the role,2,Verify system response,Error: 'You have already applied for this role'. Duplicate application blocked,N/A,Negative
+TC-11.7,UI & Non-Functional,Network Failure During Skill Addition,P2 - Medium,Add Skill page open - Network unstable,1,Select category and checkbox. Simulate network failure. Click 'Add',System handles error gracefully. Retry or error message displayed,N/A,Negative
+TC-11.8,UI & Non-Functional,Network Failure During Resume Upload,P2 - Medium,Upload Resume page open - Network unstable,1,Upload file. Simulate network failure. Click 'Apply',System handles error gracefully. Retry or error message displayed. No partial application submitted,N/A,Negative
+TC-11.9,UI & Non-Functional,Network Failure During Additional Skill Input Save,P2 - Medium,Any Add page open - Network unstable,1,Fill form fields. Simulate network failure. Click Save,System handles error gracefully. Entry not partially saved. Error message displayed,N/A,Negative

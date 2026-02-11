@@ -1,0 +1,25 @@
+[
+  {
+    "ROLE": "Software Engineer",
+    "TITLE": "Senior Software Developer",
+    "COMPANY": "ANJANA INFOTECH PRIVATE LIMITED ",
+    "FUNCTION": "AdministratIon",
+    "INDUSTRY": "Information Technology",
+    "SKILLS": "Ai Function In The Element Of Physics",
+   "START_DATE": "2022-01",
+    "END_DATE": "2022-12",
+    "EMPLOYMENT_TYPE": "Part-time"
+
+  },
+  {
+    "ROLE": "Junior Developer", 
+    "TITLE": "Junior Frontend Developer",
+    "COMPANY": "StartUp Hub",
+    "FUNCTION": "Frontend Development",
+    "INDUSTRY": "Software Development",
+    "SKILLS": "HTML, CSS, JavaScript",
+    "START_DATE": "2021-06",
+    "END_DATE": "2021-12",
+    "EMPLOYMENT_TYPE": "Part-time"
+  }
+]

@@ -1,0 +1,150 @@
+TC ID,Module,Test Case Title,Priority,Precondition,Step No,Step Description,Expected Result,Test Data (Excel Column),Type
+TC-1.1,Login & Authentication,Valid Login with Terms Checkbox,P0 - Critical,Valid student account exists,1,Open application URL: https://auth.uat.pluginlive.com/,Login page is displayed with email and password fields,N/A,Positive
+TC-1.1,Login & Authentication,Valid Login with Terms Checkbox,P0 - Critical,Valid student account exists,2,Enter valid email in the email textfield,Email is entered successfully,Student-Email-ID,Positive
+TC-1.1,Login & Authentication,Valid Login with Terms Checkbox,P0 - Critical,Valid student account exists,3,Enter valid password in the password textfield,Password is entered (masked),Student-PassWord,Positive
+TC-1.1,Login & Authentication,Valid Login with Terms Checkbox,P0 - Critical,Valid student account exists,4,Click the 'Agree to terms and conditions' checkbox,Checkbox is checked,N/A,Positive
+TC-1.1,Login & Authentication,Valid Login with Terms Checkbox,P0 - Critical,Valid student account exists,5,Click the Login button,Login request is sent,N/A,Positive
+TC-1.1,Login & Authentication,Valid Login with Terms Checkbox,P0 - Critical,Valid student account exists,6,Wait for redirect to Dashboard,Dashboard is visible within 15 seconds. URL contains /dashboard,N/A,Positive
+TC-1.2,Login & Authentication,Login with Invalid Email,P1 - High,None,1,Open application URL,Login page is displayed,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email,P1 - High,None,2,"Enter invalid email format (e.g., student@, student.com)",Email entered in textfield,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email,P1 - High,None,3,Enter any password,Password entered,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email,P1 - High,None,4,Click terms checkbox,Checkbox is checked,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email,P1 - High,None,5,Click Login button,Error: 'Please enter a valid email address'. Login blocked,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,1,Open application URL,Login page is displayed,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,2,Leave email field empty,Email field is empty,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,3,Leave password field empty,Password field is empty,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,4,Click Login button,Error: 'This field is required' shown for both fields. Login blocked,N/A,Negative
+TC-1.4,Login & Authentication,Login without Terms Checkbox,P1 - High,None,1,Open application URL,Login page is displayed,N/A,Negative
+TC-1.4,Login & Authentication,Login without Terms Checkbox,P1 - High,None,2,Enter valid email and password,Credentials entered,Student-Email-ID / Student-PassWord,Negative
+TC-1.4,Login & Authentication,Login without Terms Checkbox,P1 - High,None,3,Do NOT click terms checkbox,Checkbox remains unchecked,N/A,Negative
+TC-1.4,Login & Authentication,Login without Terms Checkbox,P1 - High,None,4,Click Login button,Login blocked. User prompted to accept terms,N/A,Negative
+TC-2.1,Resume Navigation,Navigate to My Resume from Dashboard,P0 - Critical,User logged in and Dashboard visible,1,Verify Dashboard page is fully loaded,Dashboard content is visible,N/A,Positive
+TC-2.1,Resume Navigation,Navigate to My Resume from Dashboard,P0 - Critical,User logged in and Dashboard visible,2,Click 'My Resume' button on Dashboard,Resume page loads successfully,N/A,Positive
+TC-2.1,Resume Navigation,Navigate to My Resume from Dashboard,P0 - Critical,User logged in and Dashboard visible,3,Verify all section icons are visible,"Personal Info, Education, Internship, Certificate, Project, Work Experience icons visible",N/A,Positive
+TC-2.2,Resume Navigation,All Section Icons are Clickable,P0 - Critical,On Resume page,1,Click Personal Information icon,Personal Info modal/drawer opens,N/A,Positive
+TC-2.2,Resume Navigation,All Section Icons are Clickable,P0 - Critical,On Resume page,2,Close the modal,Modal closes,N/A,Positive
+TC-2.2,Resume Navigation,All Section Icons are Clickable,P0 - Critical,On Resume page,3,Repeat click for Education icon,Education modal opens,N/A,Positive
+TC-2.2,Resume Navigation,All Section Icons are Clickable,P0 - Critical,On Resume page,4,Repeat for Internship / Certificate / Project / Work Experience,Each icon opens its corresponding section modal,N/A,Positive
+TC-3.1,Personal Information,Fill Personal Info - Anywhere + Valid Address,P0 - Critical,Resume page open,1,Click Additional Information icon,Additional Information modal/drawer opens,N/A,Positive
+TC-3.1,Personal Information,Fill Personal Info - Anywhere + Valid Address,P0 - Critical,Resume page open,2,Handle location preference: If AnyWhere/JobLocation = 'Anywhere' then click Anywhere checkbox. If 'JobLocation' then fill preferred location textfield (Eg.Chennai),Location preference is set based on Excel data,AnyWhere/JobLocation + JobLocation,Positive
+TC-3.1,Personal Information,Fill Personal Info - Anywhere + Valid Address,P0 - Critical,Resume page open,3,Click on Country textfield dropdown and type to search. Select matching country,Country is selected,Country,Positive
+TC-3.1,Personal Information,Fill Personal Info - Anywhere + Valid Address,P0 - Critical,Resume page open,4,Click on State textfield dropdown (cascades from Country) and type to search. Select matching state,State is selected. State options filtered by Country,State,Positive
+TC-3.1,Personal Information,Fill Personal Info - Anywhere + Valid Address,P0 - Critical,Resume page open,5,Click on City textfield dropdown (cascades from State) and type to search. Select matching city,City is selected. City options filtered by State,City,Positive
+TC-3.1,Personal Information,Fill Personal Info - Anywhere + Valid Address,P0 - Critical,Resume page open,6,Click Pincode textfield. Clear existing value. Type 6-digit pincode,Pincode is entered (6 digits numeric),Pincode,Positive
+TC-3.1,Personal Information,Fill Personal Info - Anywhere + Valid Address,P0 - Critical,Resume page open,7,Click 'Same as Permanent Address' checkbox,Communication address auto-copied from permanent address,N/A,Positive
+TC-3.1,Personal Information,Fill Personal Info - Anywhere + Valid Address,P0 - Critical,Resume page open,8,Click Update button,Data saved. Modal closes within 3 seconds,N/A,Positive
+TC-3.2,Personal Information,Fill Personal Info - JobLocation preference,P0 - Critical,Resume page open,1,Click Additional Information icon,Modal opens,N/A,Positive
+TC-3.2,Personal Information,Fill Personal Info - JobLocation preference,P0 - Critical,Resume page open,2,AnyWhere/JobLocation = 'JobLocation'. Click preferred location textfield (span text 'Eg.Chennai'). Type location name. Select from dropdown,"Preferred location is filled (e.g., Chennai)",AnyWhere/JobLocation = JobLocation + JobLocation = Chennai,Positive
+TC-3.2,Personal Information,Fill Personal Info - JobLocation preference,P0 - Critical,Resume page open,3,Fill Country / State / City / Pincode as TC-3.1 steps 3-6,Address fields filled,Country / State / City / Pincode,Positive
+TC-3.2,Personal Information,Fill Personal Info - JobLocation preference,P0 - Critical,Resume page open,4,Click Update button,Data saved. Modal closes,N/A,Positive
+TC-3.3,Personal Information,Invalid Pincode (less than 6 digits),P1 - High,Personal Info modal open,1,Enter pincode with less than 6 digits (e.g. 600),Pincode field shows value,N/A,Negative
+TC-3.3,Personal Information,Invalid Pincode (less than 6 digits),P1 - High,Personal Info modal open,2,Click Update button,Error: 'Pincode must be 6 digits'. Update blocked,N/A,Negative
+TC-3.4,Personal Information,Required Fields Empty,P1 - High,Personal Info modal open,1,Leave Country / State / City / Pincode empty,Fields are empty,N/A,Negative
+TC-3.4,Personal Information,Required Fields Empty,P1 - High,Personal Info modal open,2,Click Update button,Error: 'This field is required' for each empty field. Update blocked,N/A,Negative
+TC-4.1,Education - 10th Standard,Fill 10th Standard - Valid Data,P0 - Critical,Resume page open,1,Click Education section icon,Education modal opens,N/A,Positive
+TC-4.1,Education - 10th Standard,Fill 10th Standard - Valid Data,P0 - Critical,Resume page open,2,Click on Board textfield dropdown. Type board name. Select matching option,Board selected (e.g. CBSE),10th-Board,Positive
+TC-4.1,Education - 10th Standard,Fill 10th Standard - Valid Data,P0 - Critical,Resume page open,3,Click on Year textfield dropdown. Select passing year,Year selected,10th-Year,Positive
+TC-4.1,Education - 10th Standard,Fill 10th Standard - Valid Data,P0 - Critical,Resume page open,4,Click Percentage textfield. Enter percentage value (0-100),Percentage entered,10th-percentage,Positive
+TC-4.2,Education - 10th Standard,10th Percentage Out of Range,P1 - High,Education modal open,1,Enter percentage > 100 (e.g. 105),Value entered in field,N/A,Negative
+TC-4.2,Education - 10th Standard,10th Percentage Out of Range,P1 - High,Education modal open,2,Click Update button,Error: 'Percentage must be between 0 and 100'. Update blocked,N/A,Negative
+TC-4.3,Education - 10th Standard,10th Required Fields Empty,P1 - High,Education modal open,1,Leave Board / Year / Percentage empty,Fields are empty,N/A,Negative
+TC-4.3,Education - 10th Standard,10th Required Fields Empty,P1 - High,Education modal open,2,Click Update button,Error: 'This field is required'. Update blocked,N/A,Negative
+TC-5.1,Education - 12th Standard,Select 12th Path,P0 - Critical,10th data filled,1,Click Qualification 12th button to expand path selector,Path selector (12th / Diploma) is visible,N/A,Positive
+TC-5.1,Education - 12th Standard,Select 12th Path,P0 - Critical,10th data filled,2,Select '12th' option from path selector,12th fields become visible. Diploma fields hidden,12th-Diploma = 12th,Positive
+TC-5.2,Education - 12th Standard,Fill 12th Standard - Valid Data,P0 - Critical,12th path selected,1,Click on Board textfield dropdown. Type board name. Select matching option,Board selected,12th-Board,Positive
+TC-5.2,Education - 12th Standard,Fill 12th Standard - Valid Data,P0 - Critical,12th path selected,2,Click on Year textfield dropdown. Select year (must be after 10th year),Year selected (validated > 10th year),12th-Year,Positive
+TC-5.2,Education - 12th Standard,Fill 12th Standard - Valid Data,P0 - Critical,12th path selected,3,Click Percentage textfield. Enter percentage (0-100),Percentage entered,12th-percentage,Positive
+TC-5.2,Education - 12th Standard,Fill 12th Standard - Valid Data,P0 - Critical,12th path selected,4,Click Update button,Education data saved. Modal closes,N/A,Positive
+TC-5.3,Education - 12th Standard,12th Year Before 10th Year,P1 - High,10th Year = 2018,1,Select 12th Year = 2017 (before 10th year),Year selected,N/A,Negative
+TC-5.3,Education - 12th Standard,12th Year Before 10th Year,P1 - High,10th Year = 2018,2,Click Update button,Error: '12th year must be after 10th year'. Update blocked,N/A,Negative
+TC-6.1,Education - Diploma,Select Diploma Path,P0 - Critical,10th data filled,1,Click Qualification 12th button to expand path selector,Path selector visible,N/A,Positive
+TC-6.1,Education - Diploma,Select Diploma Path,P0 - Critical,10th data filled,2,Select 'Diploma' option from path selector,Diploma fields become visible. 12th fields hidden,12th-Diploma = Diploma,Positive
+TC-6.2,Education - Diploma,Fill Diploma - Valid Data (Percentage),P0 - Critical,Diploma path selected,1,Click State textfield dropdown. Type and select state,State selected,Diploma-State,Positive
+TC-6.2,Education - Diploma,Fill Diploma - Valid Data (Percentage),P0 - Critical,Diploma path selected,2,Click City textfield dropdown (cascades from State). Type and select city,City selected,Diploma-City,Positive
+TC-6.2,Education - Diploma,Fill Diploma - Valid Data (Percentage),P0 - Critical,Diploma path selected,3,Click College textfield dropdown. Type and select college,College selected,Diploma-College,Positive
+TC-6.2,Education - Diploma,Fill Diploma - Valid Data (Percentage),P0 - Critical,Diploma path selected,4,Wait for Institution Name textfield to appear after college selection. Enter institution name,Institution name filled,Diploma-College,Positive
+TC-6.2,Education - Diploma,Fill Diploma - Valid Data (Percentage),P0 - Critical,Diploma path selected,5,Click Year textfield dropdown. Select diploma passing year,Year selected,Diploma-Year,Positive
+TC-6.2,Education - Diploma,Fill Diploma - Valid Data (Percentage),P0 - Critical,Diploma path selected,6,Click Marks Type dropdown. Select 'Percentage',Percentage option selected,Diploma-markType = Percentage,Positive
+TC-6.2,Education - Diploma,Fill Diploma - Valid Data (Percentage),P0 - Critical,Diploma path selected,7,Enter percentage value in Percentage textfield (0-100),Percentage entered,Diploma-percentage,Positive
+TC-6.2,Education - Diploma,Fill Diploma - Valid Data (Percentage),P0 - Critical,Diploma path selected,8,Click Degree textfield dropdown. Type and select degree,Degree selected,Diploma-Degree,Positive
+TC-6.2,Education - Diploma,Fill Diploma - Valid Data (Percentage),P0 - Critical,Diploma path selected,9,Click Department textfield dropdown. Type and select department,Department selected,Diploma-Department,Positive
+TC-6.2,Education - Diploma,Fill Diploma - Valid Data (Percentage),P0 - Critical,Diploma path selected,10,Click Update button,Diploma data saved. Modal closes,N/A,Positive
+TC-6.3,Education - Diploma,Fill Diploma - Valid Data (CGPA),P0 - Critical,Diploma path selected,1,Fill State / City / College / Institution / Year as TC-6.2 steps 1-5,Fields filled,Diploma-State / City / College / Year,Positive
+TC-6.3,Education - Diploma,Fill Diploma - Valid Data (CGPA),P0 - Critical,Diploma path selected,2,Click Marks Type dropdown. Select 'CGPA',CGPA option selected,Diploma-markType = CGPA,Positive
+TC-6.3,Education - Diploma,Fill Diploma - Valid Data (CGPA),P0 - Critical,Diploma path selected,3,Enter CGPA value (must be ≤ scale value),CGPA entered,Diploma-percentage,Positive
+TC-6.3,Education - Diploma,Fill Diploma - Valid Data (CGPA),P0 - Critical,Diploma path selected,4,Enter CGPA Scale (Out Of) value,Scale value entered,Diploma-CGPA,Positive
+TC-6.3,Education - Diploma,Fill Diploma - Valid Data (CGPA),P0 - Critical,Diploma path selected,5,Fill Degree and Department. Click Update,Diploma data saved with CGPA,Diploma-Degree / Diploma-Department,Positive
+TC-6.4,Education - Diploma,CGPA Exceeds Scale Value,P1 - High,Diploma path selected,1,Select Mark Type = CGPA. Enter CGPA Scale = 10. Enter CGPA = 11,CGPA value exceeds scale,N/A,Negative
+TC-6.4,Education - Diploma,CGPA Exceeds Scale Value,P1 - High,Diploma path selected,2,Click Update button,Error: 'CGPA cannot exceed scale value'. Update blocked,N/A,Negative
+TC-7.1,Internship,Add Internship - Valid Data,P0 - Critical,Resume page open,1,Click Internship section icon,Internship modal opens,N/A,Positive
+TC-7.1,Internship,Add Internship - Valid Data,P0 - Critical,Resume page open,2,Click 'Add Internship' button,New internship form appears,N/A,Positive
+TC-7.1,Internship,Add Internship - Valid Data,P0 - Critical,Resume page open,3,Click Role textfield dropdown. Type and select role,Role selected,Intern-Role,Positive
+TC-7.1,Internship,Add Internship - Valid Data,P0 - Critical,Resume page open,4,Click Company textfield dropdown. Type and select company,Company selected,Intern-Company,Positive
+TC-7.1,Internship,Add Internship - Valid Data,P0 - Critical,Resume page open,5,Click Function textfield dropdown. Type and select function,Function selected,Intern-Function,Positive
+TC-7.1,Internship,Add Internship - Valid Data,P0 - Critical,Resume page open,6,Click Industry textfield dropdown. Type and select industry,Industry selected,Intern-Industry,Positive
+TC-7.1,Internship,Add Internship - Valid Data,P0 - Critical,Resume page open,7,If Industry = 'Other': Enter custom industry text in Industry Text textfield,Industry text entered (if applicable),Intern-Text-Industry,Positive
+TC-7.1,Internship,Add Internship - Valid Data,P0 - Critical,Resume page open,8,Click Start Date month-year picker. Select year then month,Start date selected (YYYY-MM),Intern-Started,Positive
+TC-7.1,Internship,Add Internship - Valid Data,P0 - Critical,Resume page open,9,Click End Date month-year picker. Select year then month (must be ≥ Start Date),End date selected (YYYY-MM),Intern-Ended,Positive
+TC-7.1,Internship,Add Internship - Valid Data,P0 - Critical,Resume page open,10,Click Skills multi-select dropdown. Type skill name. Select at least 1 skill,Skill(s) selected,Intern-Skills,Positive
+TC-7.1,Internship,Add Internship - Valid Data,P0 - Critical,Resume page open,11,Click Update button,Internship saved. Modal closes,N/A,Positive
+TC-7.2,Internship,Internship End Date Before Start Date,P1 - High,Internship form open,1,Select Start Date = Jun 2023. Select End Date = Jan 2023,Dates selected,N/A,Negative
+TC-7.2,Internship,Internship End Date Before Start Date,P1 - High,Internship form open,2,Click Update button,Error: 'End date must be after start date'. Update blocked,N/A,Negative
+TC-7.3,Internship,Internship Without Skills,P1 - High,Internship form open,1,Fill all fields except Skills (leave Skills empty),Fields filled but no skill selected,N/A,Negative
+TC-7.3,Internship,Internship Without Skills,P1 - High,Internship form open,2,Click Update button,Error: 'Select at least one skill'. Update blocked,N/A,Negative
+TC-8.1,Certificate,Add Certificate - Valid Data,P0 - Critical,Resume page open,1,Click Certificate section icon,Certificate modal opens,N/A,Positive
+TC-8.1,Certificate,Add Certificate - Valid Data,P0 - Critical,Resume page open,2,Click 'Add Certification' button,New certificate form appears,N/A,Positive
+TC-8.1,Certificate,Add Certificate - Valid Data,P0 - Critical,Resume page open,3,Click Organization/Institute textfield dropdown. Type and select institute,Institute selected,Certificate-Institute,Positive
+TC-8.1,Certificate,Add Certificate - Valid Data,P0 - Critical,Resume page open,4,Click Course Title textfield. Enter course name,Course title entered,Certificate-Course,Positive
+TC-8.1,Certificate,Add Certificate - Valid Data,P0 - Critical,Resume page open,5,Click Start Date picker. Select start year and month,Start date selected,Certificate-Started,Positive
+TC-8.1,Certificate,Add Certificate - Valid Data,P0 - Critical,Resume page open,6,Click End Date picker. Select end year and month (must be ≥ Start Date),End date selected,Certificate-Ended,Positive
+TC-8.1,Certificate,Add Certificate - Valid Data,P0 - Critical,Resume page open,7,Click Skills multi-select dropdown. Type and select at least 1 skill,Skill(s) selected,Certificate-Skills,Positive
+TC-8.1,Certificate,Add Certificate - Valid Data,P0 - Critical,Resume page open,8,Click Submit button,Certificate saved. Modal closes,N/A,Positive
+TC-8.2,Certificate,Certificate Without Skills,P1 - High,Certificate form open,1,Fill all fields except Skills,Fields filled but no skill,N/A,Negative
+TC-8.2,Certificate,Certificate Without Skills,P1 - High,Certificate form open,2,Click Submit button,Error: 'Select at least one skill'. Submit blocked,N/A,Negative
+TC-9.1,Project,Add Project - Valid Data,P0 - Critical,Resume page open,1,Click Project section icon,Project modal opens,N/A,Positive
+TC-9.1,Project,Add Project - Valid Data,P0 - Critical,Resume page open,2,Click 'Add Project' button,New project form appears,N/A,Positive
+TC-9.1,Project,Add Project - Valid Data,P0 - Critical,Resume page open,3,Click Project Title textfield. Enter project name,Title entered,Project Title,Positive
+TC-9.1,Project,Add Project - Valid Data,P0 - Critical,Resume page open,4,Click Company textfield (optional). Enter company name or leave empty,Company entered or skipped,Project-Company,Positive
+TC-9.1,Project,Add Project - Valid Data,P0 - Critical,Resume page open,5,Click Start Date picker. Select start year and month,Start date selected,Project-Started,Positive
+TC-9.1,Project,Add Project - Valid Data,P0 - Critical,Resume page open,6,Click End Date picker. Select end year and month (must be ≥ Start Date),End date selected,Project-Ended,Positive
+TC-9.1,Project,Add Project - Valid Data,P0 - Critical,Resume page open,7,Click Skills multi-select dropdown. Type and select at least 1 skill,Skill(s) selected,Project-Skills,Positive
+TC-9.1,Project,Add Project - Valid Data,P0 - Critical,Resume page open,8,Click Submit button,Project saved. Modal closes,N/A,Positive
+TC-9.2,Project,Project Without Skills,P1 - High,Project form open,1,Fill all fields except Skills,Fields filled but no skill,N/A,Negative
+TC-9.2,Project,Project Without Skills,P1 - High,Project form open,2,Click Submit button,Error: 'Select at least one skill'. Submit blocked,N/A,Negative
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,1,Click Work Experience section icon,Work Experience modal opens,N/A,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,2,Click 'Add Work Experience' button,New work experience form appears,N/A,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,3,Click Role textfield dropdown. Type and select role,Role selected,Work-Role,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,4,Click Company textfield dropdown. Type and select company,Company selected,Work-Company,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,5,Click Function textfield dropdown. Type and select function,Function selected,Work-Function,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,6,Click Industry textfield dropdown. Type and select industry,Industry selected,Work-Industry,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,7,If Industry = 'Other': Enter custom industry text in Industry Text textfield,Industry text entered (if applicable),Work-Text-Industry,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,8,Click Start Date month-year picker. Select year then month,Start date selected,Work-Started,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,9,Click End Date month-year picker. Select year then month (must be ≥ Start Date),End date selected,Work-Ended,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,10,Click Employment Type dropdown. Select 'Full-time' or 'Part-time',Employment type selected,N/A,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,11,Click Job Title textfield. Enter job title,Job title entered,Work-Job-Title,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,12,Click Skills multi-select dropdown. Type and select at least 1 skill,Skill(s) selected,Work-Skills,Positive
+TC-10.1,Work Experience,Add Work Experience - Valid Data,P0 - Critical,Resume page open,13,Click Submit button,Work experience saved. Modal closes,N/A,Positive
+TC-10.2,Work Experience,Work Experience End Date Before Start Date,P1 - High,Work Experience form open,1,Select Start Date = Jan 2024. Select End Date = Jun 2023,Dates selected,N/A,Negative
+TC-10.2,Work Experience,Work Experience End Date Before Start Date,P1 - High,Work Experience form open,2,Click Submit button,Error: 'End date must be after start date'. Submit blocked,N/A,Negative
+TC-10.3,Work Experience,Work Experience Without Skills,P1 - High,Work Experience form open,1,Fill all fields except Skills,Fields filled but no skill,N/A,Negative
+TC-10.3,Work Experience,Work Experience Without Skills,P1 - High,Work Experience form open,2,Click Submit button,Error: 'Select at least one skill'. Submit blocked,N/A,Negative
+TC-11.1,E2E Flow,Complete Resume Onboarding - 12th Path,P0 - Critical,Valid student account,1,Login → Dashboard → My Resume (TC-1.1 + TC-2.1),Resume page loaded,Student-Email-ID / Student-PassWord,E2E
+TC-11.1,E2E Flow,Complete Resume Onboarding - 12th Path,P0 - Critical,Valid student account,2,Fill Personal Information (TC-3.1),Personal info saved,Country / State / City / Pincode,E2E
+TC-11.1,E2E Flow,Complete Resume Onboarding - 12th Path,P0 - Critical,Valid student account,3,Fill 10th + 12th Education (TC-4.1 + TC-5.2),Education saved,10th + 12th fields,E2E
+TC-11.1,E2E Flow,Complete Resume Onboarding - 12th Path,P0 - Critical,Valid student account,4,Fill Internship (TC-7.1),Internship saved,Intern-* fields,E2E
+TC-11.1,E2E Flow,Complete Resume Onboarding - 12th Path,P0 - Critical,Valid student account,5,Fill Certificate (TC-8.1),Certificate saved,Certificate-* fields,E2E
+TC-11.1,E2E Flow,Complete Resume Onboarding - 12th Path,P0 - Critical,Valid student account,6,Fill Project (TC-9.1),Project saved,Project-* fields,E2E
+TC-11.1,E2E Flow,Complete Resume Onboarding - 12th Path,P0 - Critical,Valid student account,7,Fill Work Experience (TC-10.1),Work experience saved. All sections complete,Work-* fields,E2E
+TC-11.2,E2E Flow,Complete Resume Onboarding - Diploma Path,P0 - Critical,Valid student account,1,Login → Dashboard → My Resume,Resume page loaded,Student-Email-ID / Student-PassWord,E2E
+TC-11.2,E2E Flow,Complete Resume Onboarding - Diploma Path,P0 - Critical,Valid student account,2,Fill Personal Information (TC-3.1),Personal info saved,Country / State / City / Pincode,E2E
+TC-11.2,E2E Flow,Complete Resume Onboarding - Diploma Path,P0 - Critical,Valid student account,3,Fill 10th + Diploma Education (TC-4.1 + TC-6.2),Education saved with Diploma,10th + Diploma fields,E2E
+TC-11.2,E2E Flow,Complete Resume Onboarding - Diploma Path,P0 - Critical,Valid student account,4,Fill Internship (TC-7.1),Internship saved,Intern-* fields,E2E
+TC-11.2,E2E Flow,Complete Resume Onboarding - Diploma Path,P0 - Critical,Valid student account,5,Fill Certificate (TC-8.1),Certificate saved,Certificate-* fields,E2E
+TC-11.2,E2E Flow,Complete Resume Onboarding - Diploma Path,P0 - Critical,Valid student account,6,Fill Project (TC-9.1),Project saved,Project-* fields,E2E
+TC-11.2,E2E Flow,Complete Resume Onboarding - Diploma Path,P0 - Critical,Valid student account,7,Fill Work Experience (TC-10.1),Work experience saved. All sections complete,Work-* fields,E2E
+TC-12.1,UI & Non-Functional,Modal Closes After Save,P1 - High,Any section saved,1,Fill any section with valid data and click Update/Submit,Modal/drawer closes within 3 seconds,N/A,Positive
+TC-12.2,UI & Non-Functional,Dashboard Load Time,P1 - High,User logged in,1,Observe time from login redirect to Dashboard visible,Dashboard visible within 15 seconds,N/A,Performance
+TC-12.3,UI & Non-Functional,Dropdown Search Functionality,P1 - High,Any dropdown field,1,Click any textfield dropdown. Type partial text,Dropdown filters options matching typed text,N/A,Positive
+TC-12.4,UI & Non-Functional,Cascading Dropdown Dependency,P1 - High,Personal Info or Diploma modal,1,Select Country/State. Observe State/City dropdown options,Child dropdown loads options filtered by parent selection,N/A,Positive
+TC-12.5,UI & Non-Functional,Error Recovery - Page Load Failure,P2 - Medium,Network unstable,1,Simulate slow network. Attempt login and navigation,System retries with timeout. Screenshot captured on failure,N/A,Negative
+TC-12.6,UI & Non-Functional,Data Persistence After Save,P1 - High,Section data saved,1,Save a section. Close modal. Reopen the same section,Previously saved data is displayed correctly,N/A,Positive

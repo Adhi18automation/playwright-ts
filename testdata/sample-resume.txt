@@ -1,0 +1,20 @@
+Sample Resume Content
+
+This is a sample resume file for testing purposes.
+
+Name: Test User
+Email: test@example.com
+Phone: 123-456-7890
+
+Experience:
+- Software Engineer at Company A (2020-2023)
+- Junior Developer at Company B (2018-2020)
+
+Education:
+- Bachelor of Science in Computer Science
+- University Name, Graduation Year: 2018
+
+Skills:
+- JavaScript, TypeScript, React, Node.js
+- Playwright, Selenium, Cypress
+- HTML, CSS, SQL

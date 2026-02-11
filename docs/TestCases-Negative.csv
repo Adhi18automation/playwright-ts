@@ -1,0 +1,39 @@
+TC ID,Module,Test Case Title,Priority,Precondition,Step No,Step Description,Expected Result,Test Data (Excel Column),Type
+TC-1.2,Login & Authentication,Login with Invalid Email,P1 - High,None,1,Open application URL,Login page is displayed,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email,P1 - High,None,2,"Enter invalid email format (e.g., student@, student.com)",Email entered in textfield,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email,P1 - High,None,3,Enter any password,Password entered,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email,P1 - High,None,4,Click terms checkbox,Checkbox is checked,N/A,Negative
+TC-1.2,Login & Authentication,Login with Invalid Email,P1 - High,None,5,Click Login button,Error: 'Please enter a valid email address'. Login blocked,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,1,Open application URL,Login page is displayed,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,2,Leave email field empty,Email field is empty,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,3,Leave password field empty,Password field is empty,N/A,Negative
+TC-1.3,Login & Authentication,Login with Empty Credentials,P1 - High,None,4,Click Login button,Error: 'This field is required' shown for both fields. Login blocked,N/A,Negative
+TC-1.4,Login & Authentication,Login without Terms Checkbox,P1 - High,None,1,Open application URL,Login page is displayed,N/A,Negative
+TC-1.4,Login & Authentication,Login without Terms Checkbox,P1 - High,None,2,Enter valid email and password,Credentials entered,Student-Email-ID / Student-PassWord,Negative
+TC-1.4,Login & Authentication,Login without Terms Checkbox,P1 - High,None,3,Do NOT click terms checkbox,Checkbox remains unchecked,N/A,Negative
+TC-1.4,Login & Authentication,Login without Terms Checkbox,P1 - High,None,4,Click Login button,Login blocked. User prompted to accept terms,N/A,Negative
+TC-3.3,Personal Information,Invalid Pincode (less than 6 digits),P1 - High,Personal Info modal open,1,Enter pincode with less than 6 digits (e.g. 600),Pincode field shows value,N/A,Negative
+TC-3.3,Personal Information,Invalid Pincode (less than 6 digits),P1 - High,Personal Info modal open,2,Click Update button,Error: 'Pincode must be 6 digits'. Update blocked,N/A,Negative
+TC-3.4,Personal Information,Required Fields Empty,P1 - High,Personal Info modal open,1,Leave Country / State / City / Pincode empty,Fields are empty,N/A,Negative
+TC-3.4,Personal Information,Required Fields Empty,P1 - High,Personal Info modal open,2,Click Update button,Error: 'This field is required' for each empty field. Update blocked,N/A,Negative
+TC-4.2,Education - 10th Standard,10th Percentage Out of Range,P1 - High,Education modal open,1,Enter percentage > 100 (e.g. 105),Value entered in field,N/A,Negative
+TC-4.2,Education - 10th Standard,10th Percentage Out of Range,P1 - High,Education modal open,2,Click Update button,Error: 'Percentage must be between 0 and 100'. Update blocked,N/A,Negative
+TC-4.3,Education - 10th Standard,10th Required Fields Empty,P1 - High,Education modal open,1,Leave Board / Year / Percentage empty,Fields are empty,N/A,Negative
+TC-4.3,Education - 10th Standard,10th Required Fields Empty,P1 - High,Education modal open,2,Click Update button,Error: 'This field is required'. Update blocked,N/A,Negative
+TC-5.3,Education - 12th Standard,12th Year Before 10th Year,P1 - High,10th Year = 2018,1,Select 12th Year = 2017 (before 10th year),Year selected,N/A,Negative
+TC-5.3,Education - 12th Standard,12th Year Before 10th Year,P1 - High,10th Year = 2018,2,Click Update button,Error: '12th year must be after 10th year'. Update blocked,N/A,Negative
+TC-6.4,Education - Diploma,CGPA Exceeds Scale Value,P1 - High,Diploma path selected,1,Select Mark Type = CGPA. Enter CGPA Scale = 10. Enter CGPA = 11,CGPA value exceeds scale,N/A,Negative
+TC-6.4,Education - Diploma,CGPA Exceeds Scale Value,P1 - High,Diploma path selected,2,Click Update button,Error: 'CGPA cannot exceed scale value'. Update blocked,N/A,Negative
+TC-7.2,Internship,Internship End Date Before Start Date,P1 - High,Internship form open,1,Select Start Date = Jun 2023. Select End Date = Jan 2023,Dates selected,N/A,Negative
+TC-7.2,Internship,Internship End Date Before Start Date,P1 - High,Internship form open,2,Click Update button,Error: 'End date must be after start date'. Update blocked,N/A,Negative
+TC-7.3,Internship,Internship Without Skills,P1 - High,Internship form open,1,Fill all fields except Skills (leave Skills empty),Fields filled but no skill selected,N/A,Negative
+TC-7.3,Internship,Internship Without Skills,P1 - High,Internship form open,2,Click Update button,Error: 'Select at least one skill'. Update blocked,N/A,Negative
+TC-8.2,Certificate,Certificate Without Skills,P1 - High,Certificate form open,1,Fill all fields except Skills,Fields filled but no skill,N/A,Negative
+TC-8.2,Certificate,Certificate Without Skills,P1 - High,Certificate form open,2,Click Submit button,Error: 'Select at least one skill'. Submit blocked,N/A,Negative
+TC-9.2,Project,Project Without Skills,P1 - High,Project form open,1,Fill all fields except Skills,Fields filled but no skill,N/A,Negative
+TC-9.2,Project,Project Without Skills,P1 - High,Project form open,2,Click Submit button,Error: 'Select at least one skill'. Submit blocked,N/A,Negative
+TC-10.2,Work Experience,Work Experience End Date Before Start Date,P1 - High,Work Experience form open,1,Select Start Date = Jan 2024. Select End Date = Jun 2023,Dates selected,N/A,Negative
+TC-10.2,Work Experience,Work Experience End Date Before Start Date,P1 - High,Work Experience form open,2,Click Submit button,Error: 'End date must be after start date'. Submit blocked,N/A,Negative
+TC-10.3,Work Experience,Work Experience Without Skills,P1 - High,Work Experience form open,1,Fill all fields except Skills,Fields filled but no skill,N/A,Negative
+TC-10.3,Work Experience,Work Experience Without Skills,P1 - High,Work Experience form open,2,Click Submit button,Error: 'Select at least one skill'. Submit blocked,N/A,Negative
+TC-12.5,UI & Non-Functional,Error Recovery - Page Load Failure,P2 - Medium,Network unstable,1,Simulate slow network. Attempt login and navigation,System retries with timeout. Screenshot captured on failure,N/A,Negative

@@ -1,0 +1,24 @@
+[
+  {
+    "MARKS": "78",
+    "QUALIFICATION": "Diploma",
+    "STATE_DIPLOMA": "Pondicherry",
+    "CITY_DIPLOMA": "Ariankuppam",
+    "COLLEGE_DIPLOMA": "AM JAIN COLLEGE",
+    "YEAR_DIPLOMA": "2015",
+    "MARKS_TYPE": "CGPA",
+    "MARKS_DIPLOMA": "8.2",
+    "CGPA_OUT_OF": "10",
+    "DEGREE": "Ug Diploma",
+    "DEPARTMENT": "ARTS OF SCIENCE"
+    
+  },
+  {
+    "MARKS": "85",
+    "QUALIFICATION": "12th",
+    "BOARD_12TH": "HSC (Higher Secondary Certificate)",
+    "YEAR_12TH": 2010,
+    "MARKS_12TH": "92",
+    "MARKS_TYPE": "Percentage"
+  }
+]

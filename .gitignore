@@ -1,0 +1,30 @@
+# Node
+node_modules/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# Screenshots / videos / traces
+*.png
+*.jpg
+*.jpeg
+*.webm
+*.zip
+
+# Logs
+*.log
+
+# Environment
+.env
+
+# VS Code
+.vscode/
+
+# Secrets
+credentials.json
+*.secret.json
+.env
